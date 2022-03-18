@@ -15,6 +15,8 @@ You can change that easily before the execution by modifying last lines in "Ubun
 Be aware to modify "Forensic.sh" too (line : 	sudo mount -t auto /home/analyste/VBoxGuestAdditions.iso /media/cdrom)
 
 You can change the default size (80Go) for the VM by modifying the file "Ubuntu.json" (line : "disk_size": "80000")
+You can change the default RAM size (8Go) for the VM by modifying the file "Ubuntu.json" (line : "memory": "8192")
+You can change the default number of cpus (4) for the VM by modifying the file "Ubuntu.json" (line : "cpus": "4")
 
 KNOWN ISSUE
 -----------

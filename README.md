@@ -11,8 +11,10 @@ You must have a second partition named in D:
 INFORMATION
 -----------
 The credential for the VM (in VirtualBox) are "analyste/analyste".
-You can change that easily before the execution by modifing last lines in "Ubuntu.json"
+You can change that easily before the execution by modifying last lines in "Ubuntu.json"
 Be aware to modify "Forensic.sh" too (line : 	sudo mount -t auto /home/analyste/VBoxGuestAdditions.iso /media/cdrom)
+
+You can change the default size (80Go) for the VM by modifying the file "Ubuntu.json" (line : "disk_size": "80000")
 
 KNOWN ISSUE
 -----------

@@ -144,6 +144,7 @@ Etape50_install_unpacked_tools(){
 	sudo pip3 install tqdm
 	sudo git clone $ZIRCOLITE
 	sudo pip3 install -r ./Zircolite/requirements.txt
+	sudo pip3 install ruamel.yaml
 	sudo echo "Zircolite" >> README_for_tools.txt
 	sudo echo "---------" >> README_for_tools.txt
 	sudo echo "A standalone SIGMA-based detection tool for EVTX." >> README_for_tools.txt

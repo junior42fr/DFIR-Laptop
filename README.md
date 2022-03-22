@@ -1,23 +1,23 @@
 # DFIR-Laptop
-Installation of all the tools for a stand-alone DFIR laptop on Windows 10 or 11
+Installation des outils nécessaires à un PC portable isolé en Windows 10 or 11
 
-Just download all files and folder in the project and click on "Setup.bat"
+Télécharger simplement le projet et lancer le script "Setup.bat"
 
 REQUIREMENTS
 ------------
-You must have a Windows 10 or 11.
-You must have a second partition named in D:
+Vous devez avoir un PC en Windows 10 or 11.
+Vous devez posséder une seconde partition nommée D:
 
 INFORMATION
 -----------
-The credential for the VM (in VirtualBox) are "analyste/analyste".
-You can change that easily before the execution by modifying last lines in "Ubuntu.json"
-Be aware to modify "Forensic.sh" too (line : 	sudo mount -t auto /home/analyste/VBoxGuestAdditions.iso /media/cdrom)
+Les identifiants pour la machine virtuelle (VirtualBox) sont "analyste/analyste".
+Vous pouvez changer ceux-ci facilement en modifiant les dernières lignes du fichier "Ubuntu.json"
+Soyez attentif à modifier la valeur du nom d'utilisateur dans le fichier "Forensic.sh" également
 
-You can change the default size (80Go) for the VM by modifying the file "Ubuntu.json" (line : "disk_size": "80000")
-You can change the default RAM size (8Go) for the VM by modifying the file "Ubuntu.json" (line : "memory": "8192")
-You can change the default number of cpus (4) for the VM by modifying the file "Ubuntu.json" (line : "cpus": "4")
+Vous pouvez changer la taille par défaut (80Go) de la VM en modifiant le fichier "Ubuntu.json" (ligne : "disk_size": "80000")
+Vous pouvez changer la taille par défaut (8Go) de la RAM de la VM en modifiant le fichier "Ubuntu.json" (ligne : "memory": "8192")
+Vous pouvez changer le nombre de CPU par défaut (4) de la VM en modifiant le fichier "Ubuntu.json" (ligne : "cpus": "4")
 
-KNOWN ISSUE
------------
-If the installation in Virtual Box freeze, you just have to launch the VBox - VM manager
+PROBLEME CONNU
+--------------
+Si l'installation de la machine virtuelle se bloque (sur un écran violet/mauve), vous devrez simplement démarrer "Virtual Box - Gestionnaire de Machines". Ceci débloque la situation.

@@ -17,6 +17,7 @@ ZIRCOLITE_DOC="https://github.com/wagga40/Zircolite/raw/master/docs/Zircolite_ma
 FENRIR="https://github.com/Neo23x0/Fenrir"
 LOKI="https://github.com/Neo23x0/Loki"
 LOKI_SIGNATURE="https://github.com/Neo23x0/signature-base"
+BRIM="https://github.com/brimdata/brim/releases/download/v0.28.0/Brim-0.28.0.deb"
 
 Etape10_disableautomaticupdate(){
 	echo "---------------------------------------------------------------------"
@@ -178,6 +179,13 @@ Etape50_install_unpacked_tools(){
 	echo "----" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "Simple IOC and Incident Response Scanner" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
+	
+	#Brim
+	echo " >>>>>>  Installation de Brim "
+	sudo wget $BRIM -O /tmp/brim.deb
+	sudo dpkg -i /tmp/brim.deb
+	
+	
 
 	echo "---------------------------------------------------------------------"
 	echo "OUTILS INDEPENDANTS INSTALLES"

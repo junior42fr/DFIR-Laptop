@@ -16,6 +16,7 @@ $global:SOURCE_HexEditor = "https://www.hhdsoftware.com/free-hex-editor"
 $global:SOURCE_LibreOffice = "https://download.documentfoundation.org/libreoffice/stable/"
 $global:SOURCE_Notepad = "https://notepad-plus-plus.org/downloads/"
 $global:SOURCE_NPCap = "https://nmap.org/npcap/dist/"
+$global:SOURCE_Packer = "https://developer.hashicorp.com/packer/downloads"
 $global:SOURCE_Putty = "https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html"
 $global:SOURCE_Python = "https://www.python.org/downloads/release/python-395/"
 $global:SOURCE_VirtualBox = "https://www.virtualbox.org/wiki/Downloads"
@@ -53,6 +54,7 @@ Class CInstallation{
     [boolean]$online                 #accès à internet
     [boolean]$export                 #exportation pour une future installation hors-ligne
     [boolean]$nettoyage              #suppression de toutes traces sur le PC actuel
+    [string]$ipaddress               #adresse IP du PC hôte
     [string]$chemin_base             #chemin de l'exécution du script PS1
     [string]$chemin_script           #chemin de l'exécution pour les scripts Linux Forensic
     [string]$chemin_script_forensic  #chemin complet vers le script forensic 
@@ -76,11 +78,12 @@ Class CInstallation{
             $ip = Get-NetIPAddress -AddressState Preferred -AddressFamily IPv4 | Select-Object IPAddress,InterfaceAlias |Where-Object { $_.InterfaceAlias -contains "Wi-Fi" }
         }
         if($ip){
-
             if ($ip.IPAddress -match '^169.254.'){
                 $this.online = $false
+                $this.ipaddress = "0.0.0.0"
             }
             else{
+                $this.ipaddress = $ip.IPAddress
                 if (Test-Connection "www.google.fr" -Count 1 -Quiet){
                      $this.online = $true
                 }
@@ -971,7 +974,7 @@ function LinuxCreation($installation){
     #Récupération ET DECOMPRESSION de Packer
     $ProgressPreference = 'SilentlyContinue'
     Write-Host "Téléchargement et décompression Packer (environ 28Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $packer = $(@(Invoke-WebRequest -Uri "https://www.packer.io/downloads" -UseBasicParsing).links.href) -match "windows" -match "64"
+    $packer = $(@(Invoke-WebRequest -Uri $global:SOURCE_Packer -UseBasicParsing).links.href) -match "windows" -match "64"
     $packer_dl = $packer[0]
     $packer_version = $packer_dl.split("/")[-1]
     $packer_sauvegarde = $installation.chemin_script + $packer_version
@@ -1019,8 +1022,13 @@ function LinuxCreation($installation){
     }
 
     #Nommage de la machine virtuelle
-    $regex = '"name" : "' + $global:NOM_BASE_VM +'_\d\d\d\d-\d\d-\d\d"'
-    $remplacement = '"name" : "' + $installation.nom_VM + '"'
+    $regex = '"name": "' + $global:NOM_BASE_VM +'_\d\d\d\d-\d\d-\d\d"'
+    $remplacement = '"name": "' + $installation.nom_VM + '"'
+    (Get-Content -Path $fichier_variables) -replace $regex, $remplacement |Set-Content $fichier_variables
+
+    #Adresse IP du PC Hôte (devenu obligatoire suite à un pb avec VBox 7.0)
+    $regex = '"host_ip": "\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}"'
+    $remplacement = '"host_ip": "' + $installation.ipaddress + '"'
     (Get-Content -Path $fichier_variables) -replace $regex, $remplacement |Set-Content $fichier_variables
 
     #Lancement de la creation de la machine via Packer

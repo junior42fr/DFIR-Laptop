@@ -1,6 +1,7 @@
 {
-  "skip_export": "false",
-  "keep_registered": "false",
-  "output_directory" : "VirtualBoxForensic",
-  "name" : "Forensic_2022-03-17"
+  "skip_export": "true",
+  "keep_registered": "true",
+  "output_directory": "VirtualBoxForensic",
+  "name": "Forensic_2022-10-27",
+  "host_ip": "192.168.10.70"
 }

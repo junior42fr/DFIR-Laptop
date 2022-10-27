@@ -25,12 +25,12 @@
       "boot_wait": "5s",
       "boot_command": [
         "<tab>",
-        "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{ user `preseed_file_name` }} ",
+        "preseed/url=http://{{ user `host_ip` }}:{{ .HTTPPort }}/{{ user `preseed_file_name` }} ",
         "auto=true ",
         "net.ifnames=0 ",
-        "hostname=localhost ",
+        "hostname=Forensicator ",
         "<enter>"
-      ],
+	],
 
       "shutdown_command": "echo 'Extinction packer' | sudo shutdown -P now",
       "keep_registered": "{{user `keep_registered`}}",

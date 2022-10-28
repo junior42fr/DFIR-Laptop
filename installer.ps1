@@ -12,7 +12,7 @@ $global:SOURCE_Chrome = "https://dl.google.com/tag/s/dl/chrome/install/googlechr
 $global:SOURCE_DBBrowser = "https://sqlitebrowser.org/dl/"
 $global:SOURCE_Firefox = "https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=fr"
 $global:SOURCE_Foxit = "https://www.foxit.com/downloads/latest.html?product=Foxit-Reader&platform=Windows&version=&package_type=&language=French&distID="
-$global:SOURCE_HexEditor = "https://www.hhdsoftware.com/free-hex-editor"
+$global:SOURCE_HexEditor = "https://www.hhdsoftware.com/download/free-hex-editor-neo.exe"
 $global:SOURCE_LibreOffice = "https://download.documentfoundation.org/libreoffice/stable/"
 $global:SOURCE_Notepad = "https://notepad-plus-plus.org/downloads/"
 $global:SOURCE_NPCap = "https://nmap.org/npcap/dist/"
@@ -400,8 +400,7 @@ function Foxit-Downloader($installation){
 function HexEditor-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
     Write-Host "Téléchargement Hex Editor (environ 15Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $hexeditor = $(@(Invoke-WebRequest -Uri $global:SOURCE_HexEditor -UseBasicParsing).links.href) -match 'exe$'
-    $hexeditor_dl = $global:SOURCE_HexEditor.split("/")[-2] + $hexeditor[0]
+    $hexeditor_dl = $global:SOURCE_HexEditor
     $hexeditor_version = $hexeditor_dl.Split("/")[-1]
     $hexeditor_sauvegarde = $installation.chemin_logiciels + $hexeditor_version
     Invoke-WebRequest -Uri $hexeditor_dl -UseBasicParsing -OutFile $hexeditor_sauvegarde
@@ -619,17 +618,17 @@ function WinDefender-Downloader($installation){
 
 ### Nom de la fonction : WindowsTerminal-Downloader
 ### Fonction de téléchargement de Windows Terminal
-function WindowsTerminal-Downloader($installation){
-    $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Windows Terminal (environ 25.5Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $windows_terminal = (Invoke-WebRequest -Uri $global:SOURCE_WindowsTerminal -UseBasicParsing -MaximumRedirection 0 -ErrorAction SilentlyContinue).Links.Href
-    $windows_terminal = Invoke-WebRequest -Uri $windows_terminal -UseBasicParsing
-    $lien_relatif = $($windows_terminal.Links.href -match "msixbundle")[0]
-    $windows_terminal_dl = "https://github.com/" + $lien_relatif
-    $windows_terminal_version = $lien_relatif.split("/")[-1]
-    $windows_terminal_sauvegarde = $installation.chemin_logiciels + $windows_terminal_version
-    Invoke-WebRequest -Uri $windows_terminal_dl -UseBasicParsing -Outfile $windows_terminal_sauvegarde
-}
+#function WindowsTerminal-Downloader($installation){
+#    $ProgressPreference = 'SilentlyContinue'
+#    Write-Host "Téléchargement Windows Terminal (environ 25.5Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+#    $windows_terminal = (Invoke-WebRequest -Uri $global:SOURCE_WindowsTerminal -UseBasicParsing -MaximumRedirection 0 -ErrorAction SilentlyContinue).Links.Href
+#    $windows_terminal = Invoke-WebRequest -Uri $windows_terminal -UseBasicParsing
+#    $lien_relatif = $($windows_terminal.Links.href -match "msixbundle")[0]
+#    $windows_terminal_dl = "https://github.com/" + $lien_relatif
+#    $windows_terminal_version = $lien_relatif.split("/")[-1]
+#    $windows_terminal_sauvegarde = $installation.chemin_logiciels + $windows_terminal_version
+#    Invoke-WebRequest -Uri $windows_terminal_dl -UseBasicParsing -Outfile $windows_terminal_sauvegarde
+#}
 
 ### Nom de la fonction : Winpmem-Downloader
 ### Fonction de téléchargement de Winpmem

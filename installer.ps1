@@ -22,11 +22,13 @@ $global:SOURCE_Python = "https://www.python.org/downloads/release/python-395/"
 $global:SOURCE_VirtualBox = "https://www.virtualbox.org/wiki/Downloads"
 $global:SOURCE_VirtualBoxExtPack = "https://www.virtualbox.org/wiki/Downloads"
 $global:SOURCE_VLC = "https://ftp.free.org/mirrors/videolan/vlc/"
-$global:SOURCE_WindowsTerminal = "https://github.com/microsoft/terminal/releases/latest"
 $global:SOURCE_Winscp = "https://winscp.net/eng/downloads.php"
 $global:SOURCE_Wireshark = "https://www.wireshark.org/download.html"
 
+$global:SOURCE_Aten = "https://assets.aten.com/product/driver/dw/uc232a_windows_setup_v1.0.087.zip"
+$global:SOURCE_Balena = "https://github.com/balena-io/etcher/releases"
 $global:SOURCE_Comodo = "https://www.comodo.com/home/download/during-download.php?prod=CRD"
+$global:SOURCE_Debian = "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/"
 $global:SOURCE_dotPeek = "https://www.jetbrains.com/decompiler/download/#section=portable"
 $global:SOURCE_Eset = "https://download.eset.com/com/eset/tools/recovery/rescue_cd/latest/eset_sysrescue_live_enu.iso"
 $global:SOURCE_EZTools = "https://raw.githubusercontent.com/EricZimmerman/Get-ZimmermanTools/master/Get-ZimmermanTools.ps1"
@@ -38,7 +40,6 @@ $global:SOURCE_Rufus = "https://rufus.ie/downloads/"
 $global:SOURCE_Startech = "https://sgcdn.startech.com/005329/media/sets/asix_moschip-mcs7830_drivers/asix_mcs7830.zip"
 $global:SOURCE_TestDisk = "https://www.cgsecurity.org/wiki/TestDisk_Download"
 $global:SOURCE_TZworks = "https://tzworks.com/download_links.php"
-$global:SOURCE_Winpmem = "https://github.com/Velocidex/WinPmem"
 $global:SOURCE_WindowsDefender = "https://go.microsoft.com/fwlink/?LinkID=121721&arch=x64"
 
 ### REPERTOIRES FORENSIC WINDOWS ###
@@ -294,6 +295,29 @@ function 7z-Downloader($installation){
     Start-Process -Wait msiexec.exe -ArgumentList $arguments
 }
 
+### Nom de la fonction : Aten-Downloader
+### Fonction de téléchargement de Aten UC-232A
+function Aten-Downloader{
+    $ProgressPreference = 'SilentlyContinue'
+    Write-Host "Téléchargement Aten-UC232A (environ 8Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    $aten = $global:SOURCE_Aten
+    $aten_version = $aten.split("/")[-1]
+    $aten_sauvegarde = $Chemin_forensic_tools + $aten_version
+    Invoke-WebRequest -Uri $aten -UseBasicParsing -OutFile $aten_sauvegarde
+}
+
+### Nom de la fonction : Balena-Downloader
+### Fonction de téléchargement de Balena Etcher
+function Balena-Downloader{
+    $ProgressPreference = 'SilentlyContinue'
+    Write-Host "Téléchargement Balena Etcher (environ 125Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    $balena = $(@(Invoke-WebRequest -Uri $global:SOURCE_Balena -UseBasicParsing)).links.href -match "portable"
+    $balena_dl = "https://github.com"+$balena[0]
+    $balena_version = $balena.split("/")[-1]
+    $balena_sauvegarde = $Chemin_forensic_tools + $balena_version
+    Invoke-WebRequest -Uri $balena_dl -UseBasicParsing -OutFile $balena_sauvegarde
+}
+
 ### Nom de la fonction : Brim-Downloader
 ### Fonction de téléchargement de Brim
 function Brim-Downloader($installation){
@@ -338,6 +362,18 @@ function DBBrowser-Downloader($installation){
     $dbbrowser_version = $dbbrowser_dl.split("/")[-1]
     $dbbrowser_sauvegarde = $installation.chemin_logiciels + $dbbrowser_version
     Invoke-WebRequest -Uri $dbbrowser_dl -UseBasicParsing -OutFile $dbbrowser_sauvegarde
+}
+
+### Nom de la fonction : Debian-Downloader
+### Fonction de téléchargement d'une Debian Live
+function Debian-Downloader{
+    $ProgressPreference = 'SilentlyContinue'
+    Write-Host "Téléchargement Debian Live (1.2Go)" -ForegroundColor DarkBlue -BackgroundColor White
+    $debian = $(@(Invoke-Webrequest -Uri $global:SOURCE_Debian -UseBasicParsing)).links.href -match "standard.iso"
+    $debian_version = $debian[0]
+    $debian_dl = $global:SOURCE_Debian + $debian_version
+    $debian_sauvegarde = $Chemin_forensic_tools + $debian_version
+    Invoke-WebRequest -Uri $debian_dl -UseBasicParsing -OutFile $debian_sauvegarde
 }
 
 ### Nom de la fonction : dotPeek-Downloader
@@ -534,7 +570,7 @@ function StarTech-Downloader{
 ### Fonction de téléchargement de Test Disk et PhotoRec
 function TestDisk-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Photorec pour Windows (environ 25Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "Téléchargement TestDisk/Photorec pour Windows (environ 25Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $testdisk = Invoke-WebRequest -Uri $global:SOURCE_TestDisk -UseBasicParsing
     $testdisk = @($testdisk.links.href |Select-String "win64.zip" |sort -Unique -Descending)[0]
     $testdisk_dl = $testdisk.Line -replace "Download_and_donate.php/"
@@ -559,7 +595,7 @@ function TZWorks-Downloader{
     #Récupération du lien de téléchargement de la suite complète pour Windows sur la page intermédiaire de User AGREEMENT
     $tzworks_niv3 = Invoke-WebRequest -Uri $tzworks_niv2_lien -UseBasicParsing
     $tzworks_niv3_lien = $tzworks_niv3.Content.Split("\'")[1] 
-    $tzworks_sauvegarde = $Chemin_forensic_tools + $tzworks_niv3_lien.split("/")[5]
+    $tzworks_sauvegarde = $Chemin_forensic_tools + "TZWorks_" +$tzworks_niv3_lien.split("/")[5]
     Invoke-WebRequest -Uri $tzworks_niv3_lien -UseBasicParsing -OutFile $tzworks_sauvegarde
 }
 
@@ -613,37 +649,6 @@ function WinDefender-Downloader($installation){
     Write-Host "Téléchargement de la mise à jour de Windows Defender" -foregroundcolor DarkBlue -backgroundcolor White
     $defender_sauvegarde = $installation.chemin_logiciels + "Windows-defender-update.exe"
     Invoke-WebRequest -Uri $global:SOURCE_WindowsDefender -OutFile $defender_sauvegarde
-}
-
-
-### Nom de la fonction : WindowsTerminal-Downloader
-### Fonction de téléchargement de Windows Terminal
-#function WindowsTerminal-Downloader($installation){
-#    $ProgressPreference = 'SilentlyContinue'
-#    Write-Host "Téléchargement Windows Terminal (environ 25.5Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-#    $windows_terminal = (Invoke-WebRequest -Uri $global:SOURCE_WindowsTerminal -UseBasicParsing -MaximumRedirection 0 -ErrorAction SilentlyContinue).Links.Href
-#    $windows_terminal = Invoke-WebRequest -Uri $windows_terminal -UseBasicParsing
-#    $lien_relatif = $($windows_terminal.Links.href -match "msixbundle")[0]
-#    $windows_terminal_dl = "https://github.com/" + $lien_relatif
-#    $windows_terminal_version = $lien_relatif.split("/")[-1]
-#    $windows_terminal_sauvegarde = $installation.chemin_logiciels + $windows_terminal_version
-#    Invoke-WebRequest -Uri $windows_terminal_dl -UseBasicParsing -Outfile $windows_terminal_sauvegarde
-#}
-
-### Nom de la fonction : Winpmem-Downloader
-### Fonction de téléchargement de Winpmem
-function Winpmem-Downloader{
-    $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Winpmem4.0 (moins d'1Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $winpmem_niv1 = $(@(Invoke-WebRequest -Uri $global:SOURCE_Winpmem -UseBasicParsing).links.href) -match 'release'
-    $winpmem_source = $Global:SOURCE_Winpmem.split("/")[2] + $winpmem_niv1[-1]
-    $winpmem_niv2 = $(@(Invoke-WebRequest -Uri $winpmem_source -UseBasicParsing).links.href) -match '.exe$'
-    foreach ($winpmem in $winpmem_niv2){
-        $winpmem_version = $winpmem.split("/")[-1]
-        $winpmem_sauvegarde = $Chemin_forensic_tools + $winpmem_version
-        $winpmem_dl = $Global:SOURCE_Winpmem.split("/")[2] + $winpmem
-        Invoke-WebRequest -Uri $winpmem_dl -UseBasicParsing -OutFile $winpmem_sauvegarde
-    }
 }
 
 ### Nom de la fonction : Winscp-Downloader
@@ -723,9 +728,6 @@ function WindowsOnlineToolsDownloader($installation){
     #Récupération de VLC
     VLC-Downloader($installation)
 
-    #Récupération de Windows Terminal
-    WindowsTerminal-Downloader($installation)
-
     #Récupération de Winscp
     Winscp-Downloader($installation)
 
@@ -733,8 +735,17 @@ function WindowsOnlineToolsDownloader($installation){
     Wireshark-Downloader($installation)
 
 #VERS LE DOSSIER TOOLS
+    #Récupération de Aten UC-232A
+    Aten-Downloader
+
+    #Récupération de Balena-Etcher
+    Balena-Downloader
+
     #Récupération de Comodo
     Comodo-Downloader
+
+    #Récupération de Debian Live
+    Debian-Downloader
 
     #Récupération de dotPeek
     dotPeek-Downloader
@@ -769,9 +780,6 @@ function WindowsOnlineToolsDownloader($installation){
 
     #Récupération de TZWorks pour Windows 64bits
     TZWorks-Downloader
-
-    #Récupération de Winpmem (version 32 et 64 bits)
-    Winpmem-Downloader
 
     #Si export, récupération de la mise à jour de Defender
     if($installation.export){
@@ -823,7 +831,7 @@ function WindowsOfflineToolsInstaller($installation){
             Write-Host "Installation de " $logiciel.FullName -ForegroundColor DarkBlue -BackgroundColor White
             Start-Process $logiciel.FullName
              #Attente du lancement de l'installation
-            Sleep 3
+            Sleep 6
 
             #Validation de EULA
             $wshell = New-Object -ComObject wscript.shell;
@@ -872,6 +880,13 @@ function WindowsOfflineToolsInstaller($installation){
             Write-Host "Installation de " $logiciel.FullName -ForegroundColor DarkBlue -BackgroundColor White
             $arguments = "/quiet InstallAllUsers=1 PrependPath=1"
             Start-Process -Wait $logiciel.FullName -ArgumentList $arguments
+        }
+
+        if($logiciel.FullName -match 'VirtualBox'){
+            Write-Host "Installation de " $logiciel.FullName -ForegroundColor DarkBlue -BackgroundColor White
+            $arguments = "--silent --ignore-reboot"
+            Start-Process -Wait $logiciel.FullName -ArgumentList $arguments
+            $env:Path += ";C:\Program Files\Oracle\VirtualBox"
         }
 
         if($logiciel.FullName -match 'Windows-Defender'){

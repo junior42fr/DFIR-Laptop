@@ -5,9 +5,8 @@ packages_depot=(
  "mariadb-server"
 )
 
-#SIFT_CLI_LINUX="https://github.com/sans-dfir/sift-cli/releases/download/v1.10.0/sift-cli-linux"
 SIFT_CLI_LINUX="https://github.com/sans-dfir/sift-cli/releases/download/v1.13.1/sift-cli-linux"
-CAPA="https://github.com/mandiant/capa/releases/latest/"
+CAPA="https://github.com/mandiant/capa/releases/download/v4.0.1/capa-v4.0.1-linux.zip"
 DUMPZILLA="http://www.dumpzilla.org/dumpzilla.py"
 FLOSS="https://github.com/fireeye/flare-floss/releases/download/v1.7.0/floss-v1.7.0-linux.zip"
 SIGMA="https://github.com/SigmaHQ/sigma"
@@ -81,15 +80,10 @@ Etape50_install_unpacked_tools(){
 
 	#Capa
 	echo " >>>>>>  Installation de Capa "
-	#Recherche de la dernière version de CAPA
-	CAPA_niv1=$(curl $CAPA)
-	CAPA_niv2=$(echo $CAPA_niv1 | cut -d'"' -f2)
-	CAPA_niv3=$(curl $CAPA_niv2 |grep linux.zip)
-	CAPA_niv4="https://github.com"$(echo $CAPA_niv3 |cut -d'"' -f2)
 	#Récupération de CAPA
-	sudo wget $CAPA_niv4
+	sudo wget $CAPA
 	#Mise en place de CAPA
-	CAPA_file=$(echo $CAPA_niv4 | rev |cut -d'/' -f1 | rev)
+	CAPA_file=$(echo $CAPA | rev |cut -d'/' -f1 | rev)
 	sudo unzip $CAPA_file
 	sudo rm $CAPA_file
 	#Ajout de CAPA dans le fichier de documentation

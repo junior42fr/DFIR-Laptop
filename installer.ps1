@@ -32,12 +32,16 @@ $global:SOURCE_Debian = "https://cdimage.debian.org/debian-cd/current-live/amd64
 $global:SOURCE_dotPeek = "https://www.jetbrains.com/decompiler/download/#section=portable"
 $global:SOURCE_Eset = "https://download.eset.com/com/eset/tools/recovery/rescue_cd/latest/eset_sysrescue_live_enu.iso"
 $global:SOURCE_EZTools = "https://raw.githubusercontent.com/EricZimmerman/Get-ZimmermanTools/master/Get-ZimmermanTools.ps1"
+$global:SOURCE_KAPE = "https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip"
 $global:SOURCE_Kavrescue = "https://support.kaspersky.com/14226"
 $global:SOURCE_Magnet = "https://go.magnetforensics.com/e/52162/MagnetRAMCapture/kpt99x/1159627341?h=_p7MJfjQxmriHwqkj9Y5dABdthKjcoTYlYAcem6swgY"
 $global:SOURCE_NetworkMiner = "https://www.netresec.com/?download=NetworkMiner"
+$global:SOURCE_PEStudio = "https://www.winitor.com//tools/pestudio/current/pestudio.zip"
 $global:SOURCE_Plaso = "https://github.com/log2timeline/plaso/releases/download/20191203/plaso-20191203-py3.7-amd64.zip"
 $global:SOURCE_Rufus = "https://rufus.ie/downloads/"
+$global:SOURCE_SRUM = "https://github.com/MarkBaggett/srum-dump/archive/refs/heads/master.zip"
 $global:SOURCE_Startech = "https://sgcdn.startech.com/005329/media/sets/asix_moschip-mcs7830_drivers/asix_mcs7830.zip"
+$global:SOURCE_Sysinternals = "https://download.sysinternals.com/files/SysinternalsSuite.zip"
 $global:SOURCE_TestDisk = "https://www.cgsecurity.org/wiki/TestDisk_Download"
 $global:SOURCE_TZworks = "https://tzworks.com/download_links.php"
 $global:SOURCE_WindowsDefender = "https://go.microsoft.com/fwlink/?LinkID=121721&arch=x64"
@@ -412,6 +416,16 @@ function EZTools-Downloader{
     Remove-Item -Force $EZ_tools_ps1
 }
 
+### Nom de la fonction : KAPE-Downloader
+### Fonction de téléchargement de KAPE
+function KAPE-Downloader{
+    $ProgressPreference = 'SilentlyContinue'
+    Write-Host "Téléchargement KAPE (environ 135Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    $KAPE_version = $global:SOURCE_KAPE.Split("/")[-1]
+    $KAPE_sauvegarde = $Chemin_forensic_tools + $KAPE_version
+    Invoke-WebRequest -Uri $global:SOURCE_KAPE -UseBasicParsing -OutFile $KAPE_sauvegarde
+}
+
 ### Nom de la fonction : Firefox-Downloader
 ### Fonction de téléchargement de Firefox
 function Firefox-Downloader($installation){
@@ -513,6 +527,15 @@ function Npcap-Downloader($installation){
     Invoke-WebRequest -Uri $npcap_dl -UseBasicParsing -OutFile $npcap_sauvegarde
 }
 
+### Nom de la fonction : PEStudio-Downloader
+### Fonction de téléchargement de PEStudio
+function PEStudio-Downloader{
+    $ProgressPreference = 'SilentlyContinue'
+    Write-Host "Téléchargement PEStudio (environ 1.2Mo)" -foregroundcolor DarkBlue -backgroundcolor White
+    $pestudio_sauvegarde = $Chemin_forensic_tools + $global:SOURCE_PEStudio.Split("/")[-1]
+    Invoke-WebRequest -Uri $global:SOURCE_PEStudio -UseBasicParsing -OutFile $pestudio_sauvegarde
+}
+
 ### Nom de la fonction : Plaso-Downloader
 ### Fonction de téléchargement de Plaso for Windows
 function Plaso-Downloader{
@@ -557,6 +580,15 @@ function Rufus-Downloader{
     Invoke-WebRequest -Uri $rufus_dl -UseBasicParsing -Outfile $rufus_sauvegarde
 }
 
+### Nom de la fonction : SRUM-Downloader
+### Fonction de téléchargement de SRUM
+function SRUM-Downloader{
+    $ProgressPreference = 'SilentlyContinue'
+    Write-Host "Téléchargement de System Resource Utilization Management Dump (SRUM) (environ 11Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    $SRUM_sauvegarde = $Chemin_forensic_tools + "SRUM_DUMP_master.zip"
+    Invoke-WebRequest -Uri $global:SOURCE_SRUM -UseBasicParsing -OutFile $SRUM_sauvegarde
+}
+
 ### Nom de la fonction : StarTech-Downloader
 ### Fonction de téléchargement des drivers StarTech.com USB2106S
 function StarTech-Downloader{
@@ -564,6 +596,15 @@ function StarTech-Downloader{
     Write-Host "Téléchargement des drivers StarTech USB2106S (environ 33Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $startech_sauvegarde = $Chemin_forensic_tools + "startech_USB2106S.zip"
     Invoke-WebRequest -Uri $global:SOURCE_Startech -UseBasicParsing -OutFile $startech_sauvegarde
+}
+
+### Nom de la fonction : Sysinternals-Downloader
+### Fonction de téléchargement des outils Sysinternals
+function Sysinternals-Downloader{
+    $ProgressPreference = 'SilentlyContinue'
+    Write-Host "Téléchargement des outils Sysinternals (environ 45Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    $Sysinternals_sauvegarde = $Chemin_forensic_tools + $global:SOURCE_Sysinternals.Split("/")[-1]
+    Invoke-WebRequest -Uri $global:SOURCE_Sysinternals -UseBasicParsing -OutFile $Sysinternals_sauvegarde
 }
 
 ### Nom de la fonction : TestDisk-Downloader
@@ -756,6 +797,9 @@ function WindowsOnlineToolsDownloader($installation){
     #Récupération Eric Zimmerman Tools
     EZTools-Downloader
 
+    #Récupération de KAPE
+    KAPE-Downloader
+
     #Récupération de Kavrescue
     #(SUITE AU CONTEXTE ACTUEL, LE TELECHARGEMENT DE KavRescue EST SUSPENDU)
 #    KavRescue-Downloader
@@ -766,14 +810,23 @@ function WindowsOnlineToolsDownloader($installation){
     #Récupération de NetworkMiner
     NetworkMiner-Downloader
 
+    #Récupération de PEStudio
+    PEStudio-Downloader
+
     #Récupération de Plaso pour Windows 64bit
     Plaso-Downloader
 
     #Récupération de Rufus
     Rufus-Downloader
 
+    #Récupération de SRUM
+    SRUM-Downloader
+
     #Récupération des drivers StarTech.com USB2106S
     StarTech-Downloader
+
+    #Récupération des outils Sysinternals
+    Sysinternals-Downloader
 
     #Récupération de Testdisk et Photorec pour Windows
     TestDisk-Downloader

@@ -11,11 +11,15 @@ Vous devez posséder une seconde partition nommée D:
 INFORMATION
 -----------
 Les identifiants pour la machine virtuelle (VirtualBox) sont "analyste/analyste".
+
 Vous pouvez changer ceux-ci facilement en modifiant les dernières lignes du fichier "Ubuntu.json"
+
 Soyez attentif à modifier la valeur du nom d'utilisateur dans le fichier "Forensic.sh" également
 
 Vous pouvez changer la taille par défaut (80Go) de la VM en modifiant le fichier "Ubuntu.json" (ligne : "disk_size": "80000")
+
 Vous pouvez changer la taille par défaut (8Go) de la RAM de la VM en modifiant le fichier "Ubuntu.json" (ligne : "memory": "8192")
+
 Vous pouvez changer le nombre de CPU par défaut (4) de la VM en modifiant le fichier "Ubuntu.json" (ligne : "cpus": "4")
 
 PROBLEME CONNU

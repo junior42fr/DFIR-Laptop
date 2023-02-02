@@ -47,11 +47,15 @@ $global:SOURCE_TZworks = "https://tzworks.com/download_links.php"
 $global:SOURCE_WindowsDefender = "https://go.microsoft.com/fwlink/?LinkID=121721&arch=x64"
 
 ### REPERTOIRES FORENSIC WINDOWS ###
-$Chemin_forensic = "D:\_Forensic\"
+Add-Type -AssemblyName System.Windows.Forms
+$Question_chemin_forensic = New-Object System.Windows.Forms.FolderBrowserDialog
+[void]$Question_chemin_forensic.ShowDialog()
+$Chemin_forensic = $Question_chemin_forensic.SelectedPath + "_Forensic\"
 $Chemin_forensic_dumps = $chemin_forensic + "dumps\"
 $Chemin_forensic_extract = $chemin_forensic + "extract\"
 $Chemin_forensic_tools = $chemin_forensic + "tools\"
 
+Write-Host $Chemin_forensic_tools
 
 ### CLASSE PERSONNALISEE ###
 #Classe pour une installation

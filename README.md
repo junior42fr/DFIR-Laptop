@@ -1,5 +1,5 @@
 # DFIR-Laptop
-Installation des outils nécessaires à l'investigation numérique pour un PC portable isolé en Windows 10 or 11
+Installation des outils nécessaires à l'investigation numérique pour un PC portable isolé en Windows 10 ou 11.
 
 Télécharger simplement le projet et lancer le script "Setup.bat"
 

@@ -11,7 +11,6 @@ Vous devez posséder une seconde partition nommée D:
 INFORMATION
 -----------
 Les identifiants pour la machine virtuelle (VirtualBox) sont "analyste/analyste".
-
 Vous pouvez changer ceux-ci facilement en modifiant les dernières lignes du fichier "Ubuntu.json"
 
 Soyez attentif à modifier la valeur du nom d'utilisateur dans le fichier "Forensic.sh" également

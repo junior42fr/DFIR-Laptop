@@ -50,7 +50,7 @@ $global:SOURCE_WindowsDefender = "https://go.microsoft.com/fwlink/?LinkID=121721
 Add-Type -AssemblyName System.Windows.Forms
 $Question_chemin_forensic = New-Object System.Windows.Forms.FolderBrowserDialog
 [void]$Question_chemin_forensic.ShowDialog()
-$Chemin_forensic = $Question_chemin_forensic.SelectedPath + "_Forensic\"
+$Chemin_forensic = $Question_chemin_forensic.SelectedPath + "\_Forensic\"
 $Chemin_forensic_dumps = $chemin_forensic + "dumps\"
 $Chemin_forensic_extract = $chemin_forensic + "extract\"
 $Chemin_forensic_tools = $chemin_forensic + "tools\"
@@ -60,27 +60,27 @@ Write-Host $Chemin_forensic_tools
 ### CLASSE PERSONNALISEE ###
 #Classe pour une installation
 Class CInstallation{
-    [boolean]$online                 #accès à internet
+    [boolean]$online                 #accÃ¨s Ã  internet
     [boolean]$export                 #exportation pour une future installation hors-ligne
     [boolean]$nettoyage              #suppression de toutes traces sur le PC actuel
-    [string]$ipaddress               #adresse IP du PC hôte
-    [string]$chemin_base             #chemin de l'exécution du script PS1
-    [string]$chemin_script           #chemin de l'exécution pour les scripts Linux Forensic
+    [string]$ipaddress               #adresse IP du PC hÃ´te
+    [string]$chemin_base             #chemin de l'exÃ©cution du script PS1
+    [string]$chemin_script           #chemin de l'exÃ©cution pour les scripts Linux Forensic
     [string]$chemin_script_forensic  #chemin complet vers le script forensic 
     [string]$chemin_script_preseed   #chemin complet vers le fichier preseed
     [string]$chemin_script_ubuntu    #chemin complet vers le fichier json pour packer ubuntu
     [string]$chemin_script_variables #chemin complet vers le fichier de variables pour packer
     [string]$chemin_repertoire_VM    #chemin du repertoire en lien avec la VM
     [string]$nom_vm                  #nom de la VM
-    [string]$nom_ova                 #nom du fichier OVA associé à la VM
+    [string]$nom_ova                 #nom du fichier OVA associÃ© Ã  la VM
     [string]$chemin_ova              #chemin complet vers l'OVA de la VM
     [string]$chemin_logiciels        #chemin des logiciels hors-ligne
-    [string]$chemin_export           #chemin pour l'exportation des éléments le cas échéant
+    [string]$chemin_export           #chemin pour l'exportation des Ã©lÃ©ments le cas Ã©chÃ©ant
 
-    ### Méthode de demande des choix utilisateur ###
+    ### MÃ©thode de demande des choix utilisateur ###
     CInstallation($chemin_base){
-        #Vérification de la connexion internet
-        Write-Host "Vérification de la connexion Internet (via ping)" -foregroundcolor DarkGreen -backgroundcolor White
+        #VÃ©rification de la connexion internet
+        Write-Host "VÃ©rification de la connexion Internet (via ping)" -foregroundcolor DarkGreen -backgroundcolor White
 
         $ip = Get-NetIPAddress -AddressState Preferred -AddressFamily IPv4 | Select-Object IPAddress,InterfaceAlias |Where-Object { $_.InterfaceAlias -contains "Ethernet" }
         if(-not($ip)){
@@ -102,12 +102,12 @@ Class CInstallation{
             }
         }
         else{
-            Write-Host "Aucune carte réseau n'est connectée à Internet" -ForegroundColor DarkRed -BackgroundColor White
+            Write-Host "Aucune carte rÃ©seau n'est connectÃ©e Ã  Internet" -ForegroundColor DarkRed -BackgroundColor White
         }
 
         $Host_method = Get-Host
 
-        #Définition du chemin contenant les scripts d'installation
+        #DÃ©finition du chemin contenant les scripts d'installation
         $this.chemin_base=$chemin_base + "\"
 
         $this.chemin_script = $this.chemin_base + "script\"
@@ -116,7 +116,7 @@ Class CInstallation{
         $this.chemin_script_ubuntu = $this.chemin_script + "ubuntu.json"
         $this.chemin_script_variables = $this.chemin_script + "variables.json"
 
-        #Définition du chemin de la future VM exportée
+        #DÃ©finition du chemin de la future VM exportÃ©e
         $this.chemin_repertoire_VM = $this.chemin_base + $global:REPERTOIRE_OVA + "\"
         $date_export = Get-Date -Format "yyyy-MM-dd"
         $this.nom_vm = $global:NOM_BASE_VM + "_" + $date_export
@@ -124,24 +124,24 @@ Class CInstallation{
         $this.nom_ova = $this.nom_vm + ".ova"
         $this.chemin_ova = $this.chemin_repertoire_VM + $this.nom_ova
 
-        #Définition du chemin des logiciels Windows
+        #DÃ©finition du chemin des logiciels Windows
         $this.chemin_logiciels = $this.chemin_base + "logiciels\"
 
-        #Si on est connecté à internet, on demande si l'utilisateur veut exporter le résultat
+        #Si on est connectÃ© Ã  internet, on demande si l'utilisateur veut exporter le rÃ©sultat
         if ($this.online){
             $titre = "Exportation"
-            $question = 'Voulez-vous exporter le résultat ?'
+            $question = 'Voulez-vous exporter le rÃ©sultat ?'
             $choix_export  = '&Non', '&Oui'
 
             $this.export = [System.Convert]::ToBoolean($Host_method.UI.PromptForChoice($titre, $question, $choix_export, 0))
         }
 
-        #Si l'utilisateur veut exporter le résultat, on demande s'il veut remettre le PC en config d'origine à la fin
+        #Si l'utilisateur veut exporter le rÃ©sultat, on demande s'il veut remettre le PC en config d'origine Ã  la fin
         if ($this.export -eq $true){
             $this.chemin_export = $this.chemin_base + "EXPORTATION\"
 
             $titre = "Restauration"
-            $question = "Voulez-vous nettoyer la machine hôte à l'issue?"
+            $question = "Voulez-vous nettoyer la machine hÃ´te Ã  l'issue?"
             $choix_nettoyage  = '&Non', '&Oui'
 
             $this.nettoyage = [System.Convert]::ToBoolean($Host_method.UI.PromptForChoice($titre, $question, $choix_nettoyage, 0))
@@ -157,13 +157,13 @@ Class CInstallation{
 ### PARTIE GESTION DE CREATION ###
 ##################################
 ### Nom de la fonction : CheckArbo
-### Fonction de vérification de l'arborescence pour l'installation demandée
-# paramètres en entrée : objet CInstallation
+### Fonction de vÃ©rification de l'arborescence pour l'installation demandÃ©e
+# paramÃ¨tres en entrÃ©e : objet CInstallation
 function CheckArbo($installation){
-    write-host "Vérification de l'arborescence nécessaire à l'installation" -ForegroundColor DarkGreen -BackgroundColor White
+    write-host "VÃ©rification de l'arborescence nÃ©cessaire Ã  l'installation" -ForegroundColor DarkGreen -BackgroundColor White
     #pour une image en ligne
     if($installation.online){
-        #vérification de l'existence du script forensic.sh
+        #vÃ©rification de l'existence du script forensic.sh
         if(-NOT(Test-Path $installation.chemin_script_forensic)){
             Write-Host $installation.chemin_script_forensic "est absent" -ForegroundColor DarkBlue -BackgroundColor Red
             write-host "!!!!!! FICHIER MANQUANT !!!!!!"  -ForegroundColor DarkBlue -BackgroundColor Red
@@ -197,7 +197,7 @@ function CheckArbo($installation){
     if(-not($installation.online)){
         $chemin_fichiers_exportes = $installation.chemin_base + "EXPORTATION\"
 
-        #Configuration des fichiers à vérifier
+        #Configuration des fichiers Ã  vÃ©rifier
         $fichiers_exportes = New-Object System.Collections.ArrayList
         $fichiers_exportes.AddRange(("Forensic-tools.zip","Logiciels-Windows.zip","Forensic*.ova"))
 
@@ -215,70 +215,70 @@ function CheckArbo($installation){
 }
 
 ### Nom de la fonction : WindowsConfiguration
-### Fonction de création des répertoires nécessaires et exclusion de Defender
+### Fonction de crÃ©ation des rÃ©pertoires nÃ©cessaires et exclusion de Defender
 function WindowsConfiguration($installation){
-    #Désactivation de la restauration système
+    #DÃ©sactivation de la restauration systÃ¨me
     Disable-ComputerRestore -Drive "c:\"
     
-    #Création du répertoire Logiciels
+    #CrÃ©ation du rÃ©pertoire Logiciels
     if(-not(Test-Path $installation.chemin_logiciels)){
-        Write-Host "Création du répertoire hors-ligne de mise à jour Windows" -ForegroundColor DarkBlue -BackgroundColor White
+        Write-Host "CrÃ©ation du rÃ©pertoire hors-ligne de mise Ã  jour Windows" -ForegroundColor DarkBlue -BackgroundColor White
         New-Item -ItemType Directory -Force -Path $installation.chemin_logiciels
     }
 
-    #Création des dossiers de Forensic et paramétrage exclusion Defender
-    Write-Host "Création des chemins du dossier Forensic" -ForegroundColor DarkBlue -BackgroundColor White
+    #CrÃ©ation des dossiers de Forensic et paramÃ©trage exclusion Defender
+    Write-Host "CrÃ©ation des chemins du dossier Forensic" -ForegroundColor DarkBlue -BackgroundColor White
     New-Item -ItemType Directory -Force -Path $Chemin_forensic_tools
     New-Item -ItemType Directory -Force -Path $Chemin_forensic_dumps
     New-Item -ItemType Directory -Force -Path $Chemin_forensic_extract
 
-    #Interdiction de l'exécution de programmes depuis le répertoire Extract
+    #Interdiction de l'exÃ©cution de programmes depuis le rÃ©pertoire Extract
     $acl = Get-ACL -Path $Chemin_forensic_extract
-        #Suppression de l'héritage et des permissions
+        #Suppression de l'hÃ©ritage et des permissions
     $acl.SetAccessRuleProtection($true,$false)
     $acl | Set-Acl -Path $Chemin_forensic_extract
-        #Ajout de la règle de contrôle totale sur le dossier
+        #Ajout de la rÃ¨gle de contrÃ´le totale sur le dossier
     $accessrule = New-Object System.Security.AccessControl.FileSystemAccessRule("Tout le monde","FullControl","ContainerInherit","None","Allow")
     $acl.SetAccessRule($accessrule)
     $acl |set-acl -Path $Chemin_forensic_extract
-        #Ajout de la règle de LECTURE SEULE pour les fichiers dans le répertoire et ses sous-dossiers
+        #Ajout de la rÃ¨gle de LECTURE SEULE pour les fichiers dans le rÃ©pertoire et ses sous-dossiers
     $accessrule = New-Object System.Security.AccessControl.FileSystemAccessRule("Tout le monde","Read","ObjectInherit","None","Allow")
     $acl.AddAccessRule($accessrule)
     $acl |set-acl -Path $Chemin_forensic_extract
 
-    #Exclusion du répertoire Extract de l'analyse de Windows Defender
-    Write-Host "Création de l'exclusion "$Chemin_forensic_extract" dans DEFENDER" -foregroundcolor DarkBlue -backgroundcolor White
+    #Exclusion du rÃ©pertoire Extract de l'analyse de Windows Defender
+    Write-Host "CrÃ©ation de l'exclusion "$Chemin_forensic_extract" dans DEFENDER" -foregroundcolor DarkBlue -backgroundcolor White
     Add-MpPreference -ExclusionPath $Chemin_forensic_extract
 }
 
 ### Nom de la fonction : WindowsIsolationReseau
-### Fonction de désactivation des protocoles ipv4 et ipv6 sur l'intégralité des cartes réseau
+### Fonction de dÃ©sactivation des protocoles ipv4 et ipv6 sur l'intÃ©gralitÃ© des cartes rÃ©seau
 function WindowsIsolationReseau{
     Disable-NetAdapterBinding -Name "*" -ComponentID ms_tcpip6
     Disable-NetAdapterBinding -Name "*" -ComponentID ms_tcpip
 }
 
 ### Nom de la fonction : Decompression
-### Fonction de décompression des fichiers zip pour une installation hors-ligne
+### Fonction de dÃ©compression des fichiers zip pour une installation hors-ligne
 function Decompression($installation){
-    #Paramétrage du dossier contenant l'exportation si l'installation est faite depuis un export précédent
+    #ParamÃ©trage du dossier contenant l'exportation si l'installation est faite depuis un export prÃ©cÃ©dent
     $dossier_exportation = Get-ChildItem -Recurse -Include 'EXPORTATION' -Path $installation.chemin_base |Select-Object Fullname
     if($dossier_exportation){
         $logiciels_zip_temp = $dossier_exportation.FullName + "\Logiciels-Windows.zip"
         $forensic_zip_temp = $dossier_exportation.FullName + "\Forensic-Tools.zip"
 
-        #Décompression du zip contenant les logiciels Windows
+        #DÃ©compression du zip contenant les logiciels Windows
         if(Test-Path $logiciels_zip_temp){
-            Write-Host "Décompression du dépôt local Windows" -foregroundcolor DarkBlue -backgroundcolor White
+            Write-Host "DÃ©compression du dÃ©pÃ´t local Windows" -foregroundcolor DarkBlue -backgroundcolor White
             if(Test-Path $installation.chemin_logiciels){
                 Remove-Item -Force -Recurse $installation.chemin_logiciels
             }
             Expand-Archive -Force -DestinationPath $installation.chemin_base $logiciels_zip_temp
         }
 
-        #Décompression du zip contenant les logiciels Forensic
+        #DÃ©compression du zip contenant les logiciels Forensic
         if(Test-Path $forensic_zip_temp){
-            Write-Host "Décompression du dépôt local Tools" -foregroundcolor DarkBlue -backgroundcolor White
+            Write-Host "DÃ©compression du dÃ©pÃ´t local Tools" -foregroundcolor DarkBlue -backgroundcolor White
             Remove-Item -Force -Recurse $Chemin_forensic_tools
             Expand-Archive -Force -DestinationPath $Chemin_forensic $forensic_zip_temp
         }
@@ -289,10 +289,10 @@ function Decompression($installation){
 ### PARTIE WINDOWS LOGICIELS ###
 ################################
 ### Nom de la fonction : 7z-Downloader
-### Fonction de téléchargement et d'installation de 7zip
+### Fonction de tÃ©lÃ©chargement et d'installation de 7zip
 function 7z-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement 7-Zip (environ 1.7Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement 7-Zip (environ 1.7Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $7zip = $(@(Invoke-WebRequest -Uri $global:SOURCE_7Zip -UseBasicParsing).links.href) -match "64" -match 'msi$'
     $7zip_dl = $global:SOURCE_7Zip.split("/")[2] + "/" + $7zip[0]
     $7zip_version = $7zip_dl.Split("/")[-1]
@@ -304,10 +304,10 @@ function 7z-Downloader($installation){
 }
 
 ### Nom de la fonction : Aten-Downloader
-### Fonction de téléchargement de Aten UC-232A
+### Fonction de tÃ©lÃ©chargement de Aten UC-232A
 function Aten-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Aten-UC232A (environ 8Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Aten-UC232A (environ 8Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $aten = $global:SOURCE_Aten
     $aten_version = $aten.split("/")[-1]
     $aten_sauvegarde = $Chemin_forensic_tools + $aten_version
@@ -315,10 +315,10 @@ function Aten-Downloader{
 }
 
 ### Nom de la fonction : Balena-Downloader
-### Fonction de téléchargement de Balena Etcher
+### Fonction de tÃ©lÃ©chargement de Balena Etcher
 function Balena-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Balena Etcher (environ 125Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Balena Etcher (environ 125Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $balena = $(@(Invoke-WebRequest -Uri $global:SOURCE_Balena -UseBasicParsing)).links.href -match "portable"
     $balena_dl = "https://github.com"+$balena[0]
     $balena_version = $balena.split("/")[-1]
@@ -327,10 +327,10 @@ function Balena-Downloader{
 }
 
 ### Nom de la fonction : Brim-Downloader
-### Fonction de téléchargement de Brim
+### Fonction de tÃ©lÃ©chargement de Brim
 function Brim-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Brim (environ 210Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Brim (environ 210Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $brim = Invoke-WebRequest -Uri $global:SOURCE_Brim -UseBasicParsing
     $brim_dl = ($brim.links.href -match '.exe$')[-1]
     $brim_version = $brim_dl.split("/")[-1]
@@ -339,20 +339,20 @@ function Brim-Downloader($installation){
 }
 
 ### Nom de la fonction : Chrome-Downloader
-### Fonction de téléchargement de Chrome
+### Fonction de tÃ©lÃ©chargement de Chrome
 function Chrome-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Chrome (environ 76Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Chrome (environ 76Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $chrome_version = $global:SOURCE_Chrome.split("/")[-1]
     $chrome_sauvegarde = $installation.chemin_logiciels + $chrome_version
     Invoke-WebRequest -Uri $global:SOURCE_Chrome -UseBasicParsing -OutFile $chrome_sauvegarde
 }
 
 ###Nom de la fonction : Comodo-Downloader
-### Fonction de téléchargement de Comodo Rescue Disc
+### Fonction de tÃ©lÃ©chargement de Comodo Rescue Disc
 function Comodo-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Comodo (environ 51Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Comodo (environ 51Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $comodo_niv1 = Invoke-WebRequest -Uri $global:SOURCE_Comodo -UseBasicParsing
     $comodo_dl = $comodo_niv1.links.href -match "iso"
     $comodo_version = $comodo_dl[0].split("/")[-1]
@@ -361,10 +361,10 @@ function Comodo-Downloader{
 }
 
 ### Nom de la fonction : DBBrowser-Downloader
-### Fonction de téléchargement de DB Browser for SQLite
+### Fonction de tÃ©lÃ©chargement de DB Browser for SQLite
 function DBBrowser-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement DB Browser for SQLite (environ 17Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement DB Browser for SQLite (environ 17Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $dbbrowser = $(@(Invoke-WebRequest -Uri $global:SOURCE_DBBrowser -UseBasicParsing).links.href) -match 'msi$' -match "win64"
     $dbbrowser_dl = $dbbrowser[-1]
     $dbbrowser_version = $dbbrowser_dl.split("/")[-1]
@@ -373,10 +373,10 @@ function DBBrowser-Downloader($installation){
 }
 
 ### Nom de la fonction : Debian-Downloader
-### Fonction de téléchargement d'une Debian Live
+### Fonction de tÃ©lÃ©chargement d'une Debian Live
 function Debian-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Debian Live (1.2Go)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Debian Live (1.2Go)" -ForegroundColor DarkBlue -BackgroundColor White
     $debian = $(@(Invoke-Webrequest -Uri $global:SOURCE_Debian -UseBasicParsing)).links.href -match "standard.iso"
     $debian_version = $debian[0]
     $debian_dl = $global:SOURCE_Debian + $debian_version
@@ -385,10 +385,10 @@ function Debian-Downloader{
 }
 
 ### Nom de la fonction : dotPeek-Downloader
-### Fonction de téléchargement de dotPeek
+### Fonction de tÃ©lÃ©chargement de dotPeek
 function dotPeek-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement .Peek (75Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement .Peek (75Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $dotpeek_niv1 = $(@(Invoke-WebRequest -Uri $global:SOURCE_dotPeek -UseBasicParsing).links.href) -match "windows64"
     $dotpeek_niv2 = "https:" + $dotpeek_niv1
     $dotpeek_sauvegarde = $Chemin_forensic_tools + "dotPeek.exe"
@@ -397,20 +397,20 @@ function dotPeek-Downloader{
 }
 
 ### Nom de la fonction : Eset-Downloader
-### Fonction de téléchargement de Eset Live Antivirus
+### Fonction de tÃ©lÃ©chargement de Eset Live Antivirus
 function Eset-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Eset Live Antivirus (environ 750Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Eset Live Antivirus (environ 750Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $eset_version = $global:SOURCE_Eset.Split("/")[-1]
     $eset_sauvegarde = $Chemin_forensic_tools + $eset_version
     Invoke-WebRequest -Uri $global:SOURCE_Eset -UseBasicParsing -OutFile $eset_sauvegarde
 }
 
 ### Nom de la fonction : EZTools-Downloader
-### Fonction de téléchargement des outils d'Eric Zimmerman
+### Fonction de tÃ©lÃ©chargement des outils d'Eric Zimmerman
 function EZTools-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement des outils d'Eric Zimmerman" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement des outils d'Eric Zimmerman" -ForegroundColor DarkBlue -BackgroundColor White
     $tools_zimmerman = $Chemin_forensic_tools + "EZ_tools\"
     New-Item -ItemType Directory -Force -Path $tools_zimmerman
     $EZ_tools_ps1 = ".\" + $global:SOURCE_EZTools.split("/")[-1]
@@ -421,39 +421,39 @@ function EZTools-Downloader{
 }
 
 ### Nom de la fonction : KAPE-Downloader
-### Fonction de téléchargement de KAPE
+### Fonction de tÃ©lÃ©chargement de KAPE
 function KAPE-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement KAPE (environ 135Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement KAPE (environ 135Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $KAPE_version = $global:SOURCE_KAPE.Split("/")[-1]
     $KAPE_sauvegarde = $Chemin_forensic_tools + $KAPE_version
     Invoke-WebRequest -Uri $global:SOURCE_KAPE -UseBasicParsing -OutFile $KAPE_sauvegarde
 }
 
 ### Nom de la fonction : Firefox-Downloader
-### Fonction de téléchargement de Firefox
+### Fonction de tÃ©lÃ©chargement de Firefox
 function Firefox-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Firefox (environ 55Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Firefox (environ 55Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $firefox_sauvegarde = $installation.chemin_logiciels + "Firefox.exe"
     Invoke-WebRequest -Uri $global:SOURCE_Firefox -UseBasicParsing -OutFile $firefox_sauvegarde
 }
 
 ### Nom de la fonction : Foxit-Downloader
-### Fonction de téléchargement de Foxit (PDF Reader)
+### Fonction de tÃ©lÃ©chargement de Foxit (PDF Reader)
 function Foxit-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Foxit Reader (environ 182Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Foxit Reader (environ 182Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     Write-Host "ATTENTION TELECHARGEMENT RELATIVEMENT LONG (+ de 5 minutes), PATIENCE !!" -ForegroundColor White -BackgroundColor DarkBlue
     $foxit_sauvegarde = $installation.chemin_logiciels + "Foxit.exe"
     Invoke-WebRequest -Uri $global:SOURCE_Foxit -UseBasicParsing -Outfile $foxit_sauvegarde
 }
 
 ### Nom de la fonction : HexEditor-Downloader
-### Fonction de téléchargement de Hex Editor
+### Fonction de tÃ©lÃ©chargement de Hex Editor
 function HexEditor-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Hex Editor (environ 15Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Hex Editor (environ 15Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $hexeditor_dl = $global:SOURCE_HexEditor
     $hexeditor_version = $hexeditor_dl.Split("/")[-1]
     $hexeditor_sauvegarde = $installation.chemin_logiciels + $hexeditor_version
@@ -461,10 +461,10 @@ function HexEditor-Downloader($installation){
 }
 
 ### Nom de la fonction : KavRescue-Downloader
-### Fonction de téléchargement de KavRescue
+### Fonction de tÃ©lÃ©chargement de KavRescue
 function KavRescue-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement de Kavrescue (650Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement de Kavrescue (650Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $kavrescue = $(@(Invoke-WebRequest -Uri $global:SOURCE_Kavrescue -UseBasicParsing).links.href) -match 'iso$'
     $kavrescue_dl = $kavrescue[0]
     $kavrescue_sauvegarde = $Chemin_forensic_tools + $kavrescue_dl.split("/")[-1]
@@ -472,10 +472,10 @@ function KavRescue-Downloader{
 }
 
 ### Nom de la fonction : LibreOffice-Downloader
-### Fonction de téléchargement de LibreOffice
+### Fonction de tÃ©lÃ©chargement de LibreOffice
 function LibreOffice-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement LibreOffice (environ 322Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement LibreOffice (environ 322Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $libreoffice_niv1 = $(@(Invoke-WebRequest -Uri $global:SOURCE_LibreOffice -UseBasicParsing).links.href) -match '[0-9].[0-9].[0-9]'
     $libreoffice_niv2 = $global:SOURCE_LibreOffice + $libreoffice_niv1[-1] + "win/x86_64/"
     $libreoffice_version = $(@(Invoke-WebRequest -Uri $libreoffice_niv2 -UseBasicParsing).links.href) -match 'x64.msi$'
@@ -486,10 +486,10 @@ function LibreOffice-Downloader($installation){
 }
 
 ### Nom de la fonction : MRC-Downloader
-### Fonction de téléchargement de Magnet RAM Capture
+### Fonction de tÃ©lÃ©chargement de Magnet RAM Capture
 function MRC-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Magnet RAM Capture (moins d'1Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Magnet RAM Capture (moins d'1Mo)" -ForegroundColor DarkBlue -BackgroundColor White
    #$magnet_version = $global:SOURCE_Magnet.split("/")[-1]
     $magnet_version = "MRCv120.exe"
     $magnet_sauvegarde = $Chemin_forensic_tools + $magnet_version
@@ -497,19 +497,19 @@ function MRC-Downloader{
 }
 
 ### Nom de la fonction : NetworkMiner-Downloader
-### Fonction de téléchargement de Network Miner
+### Fonction de tÃ©lÃ©chargement de Network Miner
 function NetworkMiner-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement NetworkMiner (2.5Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement NetworkMiner (2.5Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $networkminer_sauvegarde = $Chemin_forensic_tools + "networkminer.zip"
     Invoke-WebRequest -Uri $global:SOURCE_NetworkMiner -UseBasicParsing -OutFile $networkminer_sauvegarde
 }
 
 ### Nom de la fonction : Notepad-Downloader
-### Fonction de téléchargement de Notepad++
+### Fonction de tÃ©lÃ©chargement de Notepad++
 function Notepad-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Notepad++ (environ 4Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Notepad++ (environ 4Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $notepad_niv1 = $(@(Invoke-WebRequest -Uri $global:SOURCE_Notepad -UseBasicParsing).links.href) -match "downloads"
     $notepad_niv1 = $global:SOURCE_Notepad + $notepad_niv1[0].split("/")[-2]
     $notepad_niv2 = $(@(Invoke-WebRequest -Uri $notepad_niv1 -UseBasicParsing).links.href) -match 'exe$' -match "64"
@@ -520,10 +520,10 @@ function Notepad-Downloader($installation){
 }
 
 ### Nom de la fonction : Npcap-Downloader
-### Fonction de téléchargement de NPCap
+### Fonction de tÃ©lÃ©chargement de NPCap
 function Npcap-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Npcap (moins de 1Mo)" -foregroundcolor DarkBlue -backgroundcolor White
+    Write-Host "TÃ©lÃ©chargement Npcap (moins de 1Mo)" -foregroundcolor DarkBlue -backgroundcolor White
     $npcap = $(@(Invoke-WebRequest -Uri $global:SOURCE_NPCap -UseBasicParsing).links.href -match 'npcap' -match 'exe$' -notmatch "nmap")
     $npcap_version = $npcap[-1]
     $npcap_dl = $global:SOURCE_NPCap + $npcap_version
@@ -532,28 +532,28 @@ function Npcap-Downloader($installation){
 }
 
 ### Nom de la fonction : PEStudio-Downloader
-### Fonction de téléchargement de PEStudio
+### Fonction de tÃ©lÃ©chargement de PEStudio
 function PEStudio-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement PEStudio (environ 1.2Mo)" -foregroundcolor DarkBlue -backgroundcolor White
+    Write-Host "TÃ©lÃ©chargement PEStudio (environ 1.2Mo)" -foregroundcolor DarkBlue -backgroundcolor White
     $pestudio_sauvegarde = $Chemin_forensic_tools + $global:SOURCE_PEStudio.Split("/")[-1]
     Invoke-WebRequest -Uri $global:SOURCE_PEStudio -UseBasicParsing -OutFile $pestudio_sauvegarde
 }
 
 ### Nom de la fonction : Plaso-Downloader
-### Fonction de téléchargement de Plaso for Windows
+### Fonction de tÃ©lÃ©chargement de Plaso for Windows
 function Plaso-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement de Plaso for Windows (43Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement de Plaso for Windows (43Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $log2timeline_sauvegarde = $Chemin_forensic_tools + $global:SOURCE_Plaso.split("/")[-1]
     Invoke-WebRequest -Uri $global:SOURCE_Plaso -UseBasicParsing -OutFile $log2timeline_sauvegarde
 }
 
 ### Nom de la fonction : Putty-Downloader
-### Fonction de téléchargement de Putty
+### Fonction de tÃ©lÃ©chargement de Putty
 function Putty-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Putty (environ 3Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Putty (environ 3Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $putty = $(@(Invoke-WebRequest -Uri $global:SOURCE_Putty -UseBasicParsing).links.href) -match 'msi$' -match "64bit"
     $putty_dl = $putty[0]
     $putty_version = $putty_dl.split("/")[-1]
@@ -562,10 +562,10 @@ function Putty-Downloader($installation){
 }
 
 ### Nom de la fonction : Python-Downloader
-### Fonction de téléchargement de Python
+### Fonction de tÃ©lÃ©chargement de Python
 function Python-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Python (environ 28Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Python (environ 28Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $python = $(@(Invoke-WebRequest -Uri $global:SOURCE_Python -UseBasicParsing).links.href) -match 'exe$' -match "64"
     $python_dl = $python[0]
     $python_version = $python_dl.Split("/")[-1]
@@ -574,10 +574,10 @@ function Python-Downloader($installation){
 }
 
 ### Nom de la fonction : Rufus-Downloader
-### Fonction de téléchargement de Rufus
+### Fonction de tÃ©lÃ©chargement de Rufus
 function Rufus-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Rufus (1.1Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Rufus (1.1Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $rufus = $(@(Invoke-WebRequest -Uri $Global:SOURCE_Rufus -UseBasicParsing).links.href) -match 'p.exe'
     $rufus_dl = $rufus[0]
     $rufus_sauvegarde = $Chemin_forensic_tools + $rufus_dl.split("/")[-1]
@@ -585,59 +585,59 @@ function Rufus-Downloader{
 }
 
 ### Nom de la fonction : SRUM-Downloader
-### Fonction de téléchargement de SRUM
+### Fonction de tÃ©lÃ©chargement de SRUM
 function SRUM-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement de System Resource Utilization Management Dump (SRUM) (environ 11Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement de System Resource Utilization Management Dump (SRUM) (environ 11Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $SRUM_sauvegarde = $Chemin_forensic_tools + "SRUM_DUMP_master.zip"
     Invoke-WebRequest -Uri $global:SOURCE_SRUM -UseBasicParsing -OutFile $SRUM_sauvegarde
 }
 
 ### Nom de la fonction : StarTech-Downloader
-### Fonction de téléchargement des drivers StarTech.com USB2106S
+### Fonction de tÃ©lÃ©chargement des drivers StarTech.com USB2106S
 function StarTech-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement des drivers StarTech USB2106S (environ 33Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement des drivers StarTech USB2106S (environ 33Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $startech_sauvegarde = $Chemin_forensic_tools + "startech_USB2106S.zip"
     Invoke-WebRequest -Uri $global:SOURCE_Startech -UseBasicParsing -OutFile $startech_sauvegarde
 }
 
 ### Nom de la fonction : Sysinternals-Downloader
-### Fonction de téléchargement des outils Sysinternals
+### Fonction de tÃ©lÃ©chargement des outils Sysinternals
 function Sysinternals-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement des outils Sysinternals (environ 45Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement des outils Sysinternals (environ 45Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $Sysinternals_sauvegarde = $Chemin_forensic_tools + $global:SOURCE_Sysinternals.Split("/")[-1]
     Invoke-WebRequest -Uri $global:SOURCE_Sysinternals -UseBasicParsing -OutFile $Sysinternals_sauvegarde
 }
 
 ### Nom de la fonction : TestDisk-Downloader
-### Fonction de téléchargement de Test Disk et PhotoRec
+### Fonction de tÃ©lÃ©chargement de Test Disk et PhotoRec
 function TestDisk-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement TestDisk/Photorec pour Windows (environ 25Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement TestDisk/Photorec pour Windows (environ 25Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $testdisk = Invoke-WebRequest -Uri $global:SOURCE_TestDisk -UseBasicParsing
     $testdisk = @($testdisk.links.href |Select-String "win64.zip" |sort -Unique -Descending)[0]
     $testdisk_dl = $testdisk.Line -replace "Download_and_donate.php/"
-    #Paramétrage du nom de fichier local téléchargé
+    #ParamÃ©trage du nom de fichier local tÃ©lÃ©chargÃ©
     $testdisk_version = $testdisk_dl.split("/")[-1]
     $testdisk_sauvegarde = $Chemin_forensic_tools + $testdisk_version
     Invoke-WebRequest -Uri $testdisk_dl -UseBasicParsing -Outfile $testdisk_sauvegarde
 }
 
 ### Nom de la fonction : TZworks-Downloader
-### Fonction de téléchargement de TZworks (pour windows 64bits)
+### Fonction de tÃ©lÃ©chargement de TZworks (pour windows 64bits)
 ### !!!!!! CECI NE TELECHARGE PAS LA LICENCE !!!!!!
 function TZWorks-Downloader{
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement TZworks pour Windows (environ 98Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    Write-Host "ATTENTION !!! Ceci télécharge la suite TZWORKS mais PAS LE FICHIER DE LICENCE !!" -ForegroundColor Black -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement TZworks pour Windows (environ 98Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "ATTENTION !!! Ceci tÃ©lÃ©charge la suite TZWORKS mais PAS LE FICHIER DE LICENCE !!" -ForegroundColor Black -BackgroundColor White
     $tzworks_niv1 = Invoke-Webrequest -Uri $global:SOURCE_TZworks -UseBasicParsing
-    #Récupération du lien de téléchargement de la suite complète pour Windows
+    #RÃ©cupÃ©ration du lien de tÃ©lÃ©chargement de la suite complÃ¨te pour Windows
     $tzworks_niv2 = $tzworks_niv1.Links.href | Select-String "vers=win" | Select-String "typ=64" | Select-String "proto_id=32" | Out-String
     $tzworks_niv2_lien = $tzworks_niv2.split("\'")[1]
     $tzworks_niv2_lien = $tzworks_niv2_lien.Replace("&amp;","&")
-    #Récupération du lien de téléchargement de la suite complète pour Windows sur la page intermédiaire de User AGREEMENT
+    #RÃ©cupÃ©ration du lien de tÃ©lÃ©chargement de la suite complÃ¨te pour Windows sur la page intermÃ©diaire de User AGREEMENT
     $tzworks_niv3 = Invoke-WebRequest -Uri $tzworks_niv2_lien -UseBasicParsing
     $tzworks_niv3_lien = $tzworks_niv3.Content.Split("\'")[1] 
     $tzworks_sauvegarde = $Chemin_forensic_tools + "TZWorks_" +$tzworks_niv3_lien.split("/")[5]
@@ -645,10 +645,10 @@ function TZWorks-Downloader{
 }
 
 ### Nom de la fonction : VirtualBox-Downloader
-### Fonction de téléchargement et d'installation de VirtualBox
+### Fonction de tÃ©lÃ©chargement et d'installation de VirtualBox
 function VirtualBox-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement VirtualBox (environ 103Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement VirtualBox (environ 103Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $virtualbox = $(@(Invoke-WebRequest -Uri $global:SOURCE_VirtualBox -UseBasicParsing).links.href) -match 'exe$'
     $virtualbox_dl = $virtualbox[0]
     $virtualbox_version = $virtualbox.split("/")[-1]
@@ -661,10 +661,10 @@ function VirtualBox-Downloader($installation){
 }
 
 ### Nom de la fonction : VBoxExtPack-Downloader
-### Fonction de téléchargement et d'installation du pack extension de VirtualBox
+### Fonction de tÃ©lÃ©chargement et d'installation du pack extension de VirtualBox
 function VBoxExtPack-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement VirtualBox Extension Pack (environ 11Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement VirtualBox Extension Pack (environ 11Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $virtualbox_extpack = $(@(Invoke-WebRequest -Uri $global:SOURCE_VirtualBoxExtPack -UseBasicParsing).links.href) -match "extpack"
     $virtualbox_extpack_dl = $virtualbox_extpack[0]
     $virtualbox_extpack_version = $virtualbox_extpack.split("/")[-1]
@@ -675,10 +675,10 @@ function VBoxExtPack-Downloader($installation){
 }
 
 ### Nom de la fonction : VLC-Downloader
-### Fonction de téléchargement de VLC
+### Fonction de tÃ©lÃ©chargement de VLC
 function VLC-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement VLC (environ 54Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement VLC (environ 54Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $vlc_niv1 = $(@(Invoke-WebRequest -Uri $global:SOURCE_VLC -UseBasicParsing).links.href) -match '[0-9].[0-9].[0-9]'
     $vlc_niv2 = $global:SOURCE_VLC + $vlc_niv1[-1] + "win64/"
     $vlc_version = $(@(Invoke-WebRequest -Uri $vlc_niv2 -UseBasicParsing).links.href) -match 'msi$'
@@ -688,19 +688,19 @@ function VLC-Downloader($installation){
 }
 
 ### Nom de la fonction : WinDefender-Downloader
-### Fonction de téléchargement de la mise à jour de Windows Defender
+### Fonction de tÃ©lÃ©chargement de la mise Ã  jour de Windows Defender
 function WinDefender-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement de la mise à jour de Windows Defender" -foregroundcolor DarkBlue -backgroundcolor White
+    Write-Host "TÃ©lÃ©chargement de la mise Ã  jour de Windows Defender" -foregroundcolor DarkBlue -backgroundcolor White
     $defender_sauvegarde = $installation.chemin_logiciels + "Windows-defender-update.exe"
     Invoke-WebRequest -Uri $global:SOURCE_WindowsDefender -OutFile $defender_sauvegarde
 }
 
 ### Nom de la fonction : Winscp-Downloader
-### Fonction de téléchargement de Winscp
+### Fonction de tÃ©lÃ©chargement de Winscp
 function Winscp-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement WinSCP (environ 12Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement WinSCP (environ 12Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     [uri]$source = $global:SOURCE_Winscp
     $winscp_niv1 = Invoke-WebRequest -Uri $source.OriginalString -UseBasicParsing
     $lien_relatif = $($winscp_niv1.Links.href -match "exe")[0]
@@ -713,10 +713,10 @@ function Winscp-Downloader($installation){
 }
 
 ### Nom de la fonction : Wireshark-Downloader
-### Fonction de téléchargement de Wireshark
+### Fonction de tÃ©lÃ©chargement de Wireshark
 function Wireshark-Downloader($installation){
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Wireshark (environ 59Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Wireshark (environ 59Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $wireshark = $(@(invoke-Webrequest -Uri $global:SOURCE_Wireshark -UseBasicParsing).links.href) -match "exe" -match "win64"
     $wireshark_dl = $wireshark[0]
     $wireshark_version = $wireshark_dl.split("/")[-1]
@@ -725,122 +725,122 @@ function Wireshark-Downloader($installation){
 }
 
 ### Nom de la fonction : WindowsOnlineToolsDownloader
-### Fonction de téléchargement des logiciels Windows en ligne
+### Fonction de tÃ©lÃ©chargement des logiciels Windows en ligne
 function WindowsOnlineToolsDownloader($installation){
 # VERS LE DOSSIER LOGICIELS_WINDOWS
-    #Récupération ET INSTALLATION de 7-zip
+    #RÃ©cupÃ©ration ET INSTALLATION de 7-zip
     7z-Downloader($installation)
 
-    #Récupération de Brim
+    #RÃ©cupÃ©ration de Brim
     Brim-Downloader($installation)
 
-    #Récupération de Chrome
+    #RÃ©cupÃ©ration de Chrome
     Chrome-Downloader($installation)
 
-    #Récupération de DB Browser for SQLite
+    #RÃ©cupÃ©ration de DB Browser for SQLite
     DBBrowser-Downloader($installation)
 
-    #Récupération de Firefox
+    #RÃ©cupÃ©ration de Firefox
     Firefox-Downloader($installation)
 
-    #Récupération de Foxit Reader
+    #RÃ©cupÃ©ration de Foxit Reader
     Foxit-Downloader($installation)
 
-    #Récupération de Hex Editor
+    #RÃ©cupÃ©ration de Hex Editor
     HexEditor-Downloader($installation)
 
-    #Récupération de LibreOffice
+    #RÃ©cupÃ©ration de LibreOffice
     LibreOffice-Downloader($installation)
 
-    #Récupération de Notepad++
+    #RÃ©cupÃ©ration de Notepad++
     Notepad-Downloader($installation)
 
-    #Récupération de NPCAP afin de pouvoir créer des captures réseau live
+    #RÃ©cupÃ©ration de NPCAP afin de pouvoir crÃ©er des captures rÃ©seau live
     Npcap-Downloader($installation)
 
-    #Récupération de Putty
+    #RÃ©cupÃ©ration de Putty
     Putty-Downloader($installation)
 
-    #Récupération de Python
+    #RÃ©cupÃ©ration de Python
     Python-Downloader($installation)
 
-    #Récupération de VirtualBox
+    #RÃ©cupÃ©ration de VirtualBox
     VirtualBox-Downloader($installation)
 
-    #Récupération de VirtualBox Extension Pack
+    #RÃ©cupÃ©ration de VirtualBox Extension Pack
     VBoxExtPack-Downloader($installation)
 
-    #Récupération de VLC
+    #RÃ©cupÃ©ration de VLC
     VLC-Downloader($installation)
 
-    #Récupération de Winscp
+    #RÃ©cupÃ©ration de Winscp
     Winscp-Downloader($installation)
 
-    #Récupération de Wireshark
+    #RÃ©cupÃ©ration de Wireshark
     Wireshark-Downloader($installation)
 
 #VERS LE DOSSIER TOOLS
-    #Récupération de Aten UC-232A
+    #RÃ©cupÃ©ration de Aten UC-232A
     Aten-Downloader
 
-    #Récupération de Balena-Etcher
+    #RÃ©cupÃ©ration de Balena-Etcher
     Balena-Downloader
 
-    #Récupération de Comodo
+    #RÃ©cupÃ©ration de Comodo
     Comodo-Downloader
 
-    #Récupération de Debian Live
+    #RÃ©cupÃ©ration de Debian Live
     Debian-Downloader
 
-    #Récupération de dotPeek
+    #RÃ©cupÃ©ration de dotPeek
     dotPeek-Downloader
 
-    #Récupération de Eset
+    #RÃ©cupÃ©ration de Eset
     Eset-Downloader
 
-    #Récupération Eric Zimmerman Tools
+    #RÃ©cupÃ©ration Eric Zimmerman Tools
     EZTools-Downloader
 
-    #Récupération de KAPE
+    #RÃ©cupÃ©ration de KAPE
     KAPE-Downloader
 
-    #Récupération de Kavrescue
+    #RÃ©cupÃ©ration de Kavrescue
     #(SUITE AU CONTEXTE ACTUEL, LE TELECHARGEMENT DE KavRescue EST SUSPENDU)
 #    KavRescue-Downloader
 
-    #Récupération de Magnet RAM Capture
+    #RÃ©cupÃ©ration de Magnet RAM Capture
     MRC-Downloader
 
-    #Récupération de NetworkMiner
+    #RÃ©cupÃ©ration de NetworkMiner
     NetworkMiner-Downloader
 
-    #Récupération de PEStudio
+    #RÃ©cupÃ©ration de PEStudio
     PEStudio-Downloader
 
-    #Récupération de Plaso pour Windows 64bit
+    #RÃ©cupÃ©ration de Plaso pour Windows 64bit
     Plaso-Downloader
 
-    #Récupération de Rufus
+    #RÃ©cupÃ©ration de Rufus
     Rufus-Downloader
 
-    #Récupération de SRUM
+    #RÃ©cupÃ©ration de SRUM
     SRUM-Downloader
 
-    #Récupération des drivers StarTech.com USB2106S
+    #RÃ©cupÃ©ration des drivers StarTech.com USB2106S
     StarTech-Downloader
 
-    #Récupération des outils Sysinternals
+    #RÃ©cupÃ©ration des outils Sysinternals
     Sysinternals-Downloader
 
-    #Récupération de Testdisk et Photorec pour Windows
+    #RÃ©cupÃ©ration de Testdisk et Photorec pour Windows
     TestDisk-Downloader
 
-    #Récupération de TZWorks pour Windows 64bits
+    #RÃ©cupÃ©ration de TZWorks pour Windows 64bits
     TZWorks-Downloader
 
-    #Si export, récupération de la mise à jour de Defender
+    #Si export, rÃ©cupÃ©ration de la mise Ã  jour de Defender
     if($installation.export){
-        #Récupération de la mise à jour de Defender
+        #RÃ©cupÃ©ration de la mise Ã  jour de Defender
         WinDefender-Downloader($installation)
     }
 }
@@ -896,7 +896,7 @@ function WindowsOfflineToolsInstaller($installation){
             Sleep 1
             $wshell.SendKeys('~')
 
-            #Arrêt de Brim automatiquement lancé après installation
+            #ArrÃªt de Brim automatiquement lancÃ© aprÃ¨s installation
             While(!$brim){
 	            $brim = Get-Process brim -ErrorAction SilentlyContinue
             }
@@ -969,42 +969,42 @@ function WindowsOfflineToolsInstaller($installation){
 ### PARTIE WINDOWS NETTOYAGE ###
 ################################
 ### Nom de la fonction : WindowsCreationRestauration
-### Fonction permettant la création d'un point de restauration en vue d'un nettoyage
+### Fonction permettant la crÃ©ation d'un point de restauration en vue d'un nettoyage
 function WindowsCreationRestauration{
     #Suppression des points de restauration existants
     vssadmin delete shadows /all /quiet
     #Activation de la restauration
     Enable-ComputerRestore -Drive "c:\"
-    #Création du point de restauration
-    Checkpoint-Computer -Description "Pré-installation" -RestorePointType "MODIFY_SETTINGS"
-    #Désactivation de la restauration
+    #CrÃ©ation du point de restauration
+    Checkpoint-Computer -Description "PrÃ©-installation" -RestorePointType "MODIFY_SETTINGS"
+    #DÃ©sactivation de la restauration
     Disable-ComputerRestore -Drive "c:\"
 }
 
 ### Nom de la fonction : WindowsNettoyage
 ### Fonction permettant la remise en configuration du PC en cas de demande de nettoyage
 function WindowsNettoyage($installation){
-    #Suppression des dossiers créés
+    #Suppression des dossiers crÃ©Ã©s
     Write-Host "Suppression du dossier " $Chemin_forensic -foregroundcolor DarkBlue -backgroundcolor White
     Remove-Item -Recurse -Force $Chemin_forensic
     
-    #suppression des executables recopiés
-    Write-Host "Suppression des exécutables pour Windows" -foregroundcolor DarkBlue -backgroundcolor White
+    #suppression des executables recopiÃ©s
+    Write-Host "Suppression des exÃ©cutables pour Windows" -foregroundcolor DarkBlue -backgroundcolor White
     Remove-Item -Force -Recurse -Path $installation.chemin_logiciels
 
-    #suppression du répertoire VirtualBox créé
-    Write-Host "Suppression du répertoire VirtualBox créé" -foregroundcolor DarkBlue -backgroundcolor White
+    #suppression du rÃ©pertoire VirtualBox crÃ©Ã©
+    Write-Host "Suppression du rÃ©pertoire VirtualBox crÃ©Ã©" -foregroundcolor DarkBlue -backgroundcolor White
     Remove-Item -Force -Recurse -Path $installation.chemin_repertoire_VM
 
-    #Restauration du système (créé dans la fonction Windows-CreationRestauration)
+    #Restauration du systÃ¨me (crÃ©Ã© dans la fonction Windows-CreationRestauration)
     Disable-ComputerRestore -Drive "c:\"
     $point_de_restauration = Get-ComputerRestorePoint
-    Write-Host "ETES VOUS SÛR DE VOULOIR REMETTRE L'ORDINATEUR EN CONFIGURATION INITIALE ?" -ForegroundColor Yellow -BackgroundColor Red
+    Write-Host "ETES VOUS SÃ›R DE VOULOIR REMETTRE L'ORDINATEUR EN CONFIGURATION INITIALE ?" -ForegroundColor Yellow -BackgroundColor Red
     Restore-Computer -RestorePoint $point_de_restauration.SequenceNumber -Confirm
 }
 
 ###Nom de la fonction : Exportation
-### Fonction d'exportation du répertoire _Tools, des exécutables Windows et de la SIFT pour importation sur un PC offline
+### Fonction d'exportation du rÃ©pertoire _Tools, des exÃ©cutables Windows et de la SIFT pour importation sur un PC offline
 function Exportation($installation){
     New-Item -ItemType Directory -Force -Path $installation.chemin_export
     $date_export = Get-Date -Format "yyyy-MM-dd"
@@ -1014,23 +1014,23 @@ function Exportation($installation){
     $zip_logicielswindows = $installation.chemin_export + "Logiciels-Windows.zip"
     Compress-Archive -Path $installation.chemin_logiciels -DestinationPath $zip_logicielswindows
 
-    #Compression des Tools récupérés dans l'archive "Forensic-Tools.zip"
+    #Compression des Tools rÃ©cupÃ©rÃ©s dans l'archive "Forensic-Tools.zip"
     Write-Host "Compression du dossier Tools" -ForegroundColor DarkBlue -BackgroundColor White
     $chemin_fichier_zip = $installation.chemin_export + $global:TYPE_FORENSIC + "-Tools.zip"
     Compress-Archive -Path $Chemin_forensic_tools -DestinationPath $chemin_fichier_zip
 
-    #Déplacement de la machine virtuelle
-    Write-Host "Déplacement de la machine virtuelle" -ForegroundColor DarkBlue -BackgroundColor White
+    #DÃ©placement de la machine virtuelle
+    Write-Host "DÃ©placement de la machine virtuelle" -ForegroundColor DarkBlue -BackgroundColor White
     $destination_ova = $installation.chemin_export + $installation.nom_ova
     Move-Item -Path $installation.chemin_ova -Destination $destination_ova
 
-    #Compression des fichiers récupérés (tar, zip et ps1) dans une unique archive
+    #Compression des fichiers rÃ©cupÃ©rÃ©s (tar, zip et ps1) dans une unique archive
     Write-Host "Compression vers EXPORTATION.zip" -ForegroundColor DarkBlue -BackgroundColor White
-        #paramétrage du nom de fichier de sortie
+        #paramÃ©trage du nom de fichier de sortie
     $nom_fichier_export = $installation.chemin_base + 'EXPORTATION-' + $global:TYPE_FORENSIC + $date_export + '.zip'
-        #paramétrage des arguments à passer à 7z pour la création de l'archive
+        #paramÃ©trage des arguments Ã  passer Ã  7z pour la crÃ©ation de l'archive
     $arguments = 'a ' + $nom_fichier_export + ' -tzip '+$installation.chemin_export+' '+$installation.chemin_base+'Setup.bat '+$installation.chemin_base+'installer.ps1 ' +$installation.chemin_script
-        #Création de l'archive
+        #CrÃ©ation de l'archive
     Start-Process -Wait 'C:\Program Files\7-zip\7z.exe' -ArgumentList $arguments
         #Suppression du dossier d'exportation
     Remove-Item -Force -Recurse $installation.chemin_export
@@ -1040,11 +1040,11 @@ function Exportation($installation){
 # PARTIE LINUX #
 ################
 ### Nom de la fonction : LinuxViergeImport
-### Fonction de création de la machine virtuelle dans VirtualBox via packer
+### Fonction de crÃ©ation de la machine virtuelle dans VirtualBox via packer
 function LinuxCreation($installation){
-    #Récupération ET DECOMPRESSION de Packer
+    #RÃ©cupÃ©ration ET DECOMPRESSION de Packer
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement et décompression Packer (environ 28Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement et dÃ©compression Packer (environ 28Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $packer = $(@(Invoke-WebRequest -Uri $global:SOURCE_Packer -UseBasicParsing).links.href) -match "windows" -match "64"
     $packer_dl = $packer[0]
     $packer_version = $packer_dl.split("/")[-1]
@@ -1053,9 +1053,9 @@ function LinuxCreation($installation){
     Expand-Archive -Force -DestinationPath $installation.chemin_script $packer_sauvegarde
     Remove-Item -Force $packer_sauvegarde
 
-    #Récupération de Ubuntu
+    #RÃ©cupÃ©ration de Ubuntu
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Téléchargement Ubuntu Mini Iso (environ 80Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    Write-Host "TÃ©lÃ©chargement Ubuntu Mini Iso (environ 80Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $ubuntu_source = "http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/"
     $ubuntu = $(@(Invoke-Webrequest -Uri $ubuntu_source -UseBasicParsing).links.href) -match 'iso$'
     $ubuntu_dl = $ubuntu_source + $ubuntu[0]
@@ -1079,13 +1079,13 @@ function LinuxCreation($installation){
             Set-Content -Path $fichier_variables
     }
 
-    #Machine virtuelle à ne pas conserver
+    #Machine virtuelle Ã  ne pas conserver
     if($installation.nettoyage){
         (Get-Content -Path $fichier_variables) |
         ForEach-Object {$_ -Replace 'keep_registered": "true', 'keep_registered": "false'} |
             Set-Content -Path $fichier_variables
     }
-    #Machine virtuelle à conserver
+    #Machine virtuelle Ã  conserver
     if(-not ($installation.nettoyage)){
         (Get-Content -Path $fichier_variables) |
         ForEach-Object {$_ -Replace 'keep_registered": "false', 'keep_registered": "true'} |
@@ -1097,7 +1097,7 @@ function LinuxCreation($installation){
     $remplacement = '"name": "' + $installation.nom_VM + '"'
     (Get-Content -Path $fichier_variables) -replace $regex, $remplacement |Set-Content $fichier_variables
 
-    #Adresse IP du PC Hôte (devenu obligatoire suite à un pb avec VBox 7.0)
+    #Adresse IP du PC HÃ´te (devenu obligatoire suite Ã  un pb avec VBox 7.0)
     $regex = '"host_ip": "\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}"'
     $remplacement = '"host_ip": "' + $installation.ipaddress + '"'
     (Get-Content -Path $fichier_variables) -replace $regex, $remplacement |Set-Content $fichier_variables
@@ -1113,10 +1113,10 @@ function LinuxCreation($installation){
     #Suppression de l'iso Linux
     Get-ChildItem $installation.chemin_script -Include *.iso -Recurse | Remove-Item
 
-    #Suppression de l'exécutable packer
+    #Suppression de l'exÃ©cutable packer
     Get-ChildItem $installation.chemin_script -Include *.exe -Recurse | Remove-Item
 
-    #Création du répertoire partagé si besoin
+    #CrÃ©ation du rÃ©pertoire partagÃ© si besoin
     if(-not ($installation.nettoyage)){
         LinuxPartage
     }
@@ -1127,26 +1127,26 @@ function LinuxCreation($installation){
 }
 
 ### Nom de la fonction : LinuxCompletImport
-### Fonction réalisant l'import d'une machine WSL exportée précédemment
+### Fonction rÃ©alisant l'import d'une machine WSL exportÃ©e prÃ©cÃ©demment
 function LinuxOvaImport($installation){
     $ova = Get-ChildItem -Recurse -Path $installation.chemin_base -Include *.ova | select FullName
     $parameter = "import " + $ova[0].FullName
     Start-Process -NoNewWindow -Wait -FilePath $global:VIRTUALBOX -ArgumentList $parameter
 
-    #Création du répertoire partagé
+    #CrÃ©ation du rÃ©pertoire partagÃ©
     LinuxPartage
 }
 
 ### Nom de la fonction : LinuxPartage
-### Fonction réalisant la mise en place du dossier partagé
+### Fonction rÃ©alisant la mise en place du dossier partagÃ©
 function LinuxPartage(){
-    #Récupération de l'ID de la VM Forensic
+    #RÃ©cupÃ©ration de l'ID de la VM Forensic
     start-Process -NoNewWindow -Wait -FilePath $global:VIRTUALBOX -ArgumentList "list vms" -RedirectStandardOutput "vmlistSource.txt"
 
-    #Création de l'expression régulière
+    #CrÃ©ation de l'expression rÃ©guliÃ¨re
     $regex = '"'+$global:NOM_BASE_VM +'_\d\d\d\d-\d\d-\d\d"'
 
-    #Récupération des VM existantes dans VirtualBox correspondantes à l'expression régulière
+    #RÃ©cupÃ©ration des VM existantes dans VirtualBox correspondantes Ã  l'expression rÃ©guliÃ¨re
     $vm = $(Get-Content "vmlistSource.txt")
     
     #Si une VM existe dans VirtualBox
@@ -1154,33 +1154,33 @@ function LinuxPartage(){
 
         #Si une seule VM existe dans VirtualBox
         if ($vm.gettype().Name -eq "String"){
-            #Si la machine correspond à l'expression régulière, on garde le nom
+            #Si la machine correspond Ã  l'expression rÃ©guliÃ¨re, on garde le nom
             if($vm -match $regex){
                 $vm_en_cours = $vm
             }
-            #sinon on prévoit une valeur $null
+            #sinon on prÃ©voit une valeur $null
             else{
                 $vm_en_cours = $null
             }
         }
         #Si VirtualBox contient plusieurs VM
         else{
-            #On récupère toutes les VM correspondant à l'expression régulière
+            #On rÃ©cupÃ¨re toutes les VM correspondant Ã  l'expression rÃ©guliÃ¨re
             $vm_temp = ($vm -match $regex)
 
-            #Si aucune VM ne correspondait, on prévoit une valeur $null
+            #Si aucune VM ne correspondait, on prÃ©voit une valeur $null
             if(-not($vm_temp)){
                 $vm_en_cours = $null
             }
-            #Sinon on ne conserve que la dernière VM dans la liste
+            #Sinon on ne conserve que la derniÃ¨re VM dans la liste
             else{
                 $vm_en_cours = $vm_temp[-1]
             }
         }
 
-        #Si une machine Forensic a été trouvé, création du partage
+        #Si une machine Forensic a Ã©tÃ© trouvÃ©, crÃ©ation du partage
         if($vm_en_cours){
-            #Récupération de l'ID de la VM
+            #RÃ©cupÃ©ration de l'ID de la VM
             $vm_id = $vm_en_cours.split(" ")[-1]
             $vm_id = $vm_id.Replace("{","").Replace("}","")
 
@@ -1210,13 +1210,13 @@ $chemin_base = $MyInvocation.MyCommand.Definition
 $chemin_base = Split-Path $chemin_base
 Set-Location -Path $chemin_base
 
-#Création de l'objet contenant les paramètres d'installation
+#CrÃ©ation de l'objet contenant les paramÃ¨tres d'installation
 $installation = New-Object CInstallation($chemin_base)
 
-#Vérification de la présence des fichiers nécessaires
+#VÃ©rification de la prÃ©sence des fichiers nÃ©cessaires
 CheckArbo($installation)
 
-#Configuration des répertoires et exclusion de Defender
+#Configuration des rÃ©pertoires et exclusion de Defender
 WindowsConfiguration($installation)
 
 #Mise en place de la restauration
@@ -1224,9 +1224,9 @@ if($installation.nettoyage){
     WindowsCreationRestauration
 }
 
-#Déroulé de l'installation EN ligne
+#DÃ©roulÃ© de l'installation EN ligne
 if($installation.online){
-    #Téléchargement des logiciels Windows
+    #TÃ©lÃ©chargement des logiciels Windows
     WindowsOnlineToolsDownloader($installation)
 
     if (-not($installation.nettoyage)){
@@ -1237,9 +1237,9 @@ if($installation.online){
     #Creation de la machine Linux
     LinuxCreation($installation)
 }
-#Déroulé de l'installation HORS ligne
+#DÃ©roulÃ© de l'installation HORS ligne
 else{
-    #Décompression des fichiers zip
+    #DÃ©compression des fichiers zip
     Decompression($installation)
 
     #Installation des logiciels Windows
@@ -1249,16 +1249,16 @@ else{
     LinuxOvaImport($installation)
 }
 
-#Exportation des éléments installés
+#Exportation des Ã©lÃ©ments installÃ©s
 if($installation.export){
     Exportation($installation)
 }
 
-#Nettoyage et remise en état d'origine du PC
+#Nettoyage et remise en Ã©tat d'origine du PC
 if($installation.nettoyage){
     WindowsNettoyage($installation)
 }
-#Sinon isolation réseau du PC
+#Sinon isolation rÃ©seau du PC
 else{
 #    WindowsIsolationReseau
 }

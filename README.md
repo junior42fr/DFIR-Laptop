@@ -7,8 +7,8 @@ REQUIREMENTS
 ------------
 Vous devez avoir un PC en Windows 10 or 11.
 
-INFORMATION
------------
+INFORMATIONS
+------------
 Les identifiants pour la machine virtuelle (VirtualBox) sont "analyste/analyste".
 Vous pouvez changer ceux-ci facilement en modifiant les dernières lignes du fichier "Ubuntu.json"
 

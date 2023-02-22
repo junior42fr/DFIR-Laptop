@@ -6,7 +6,6 @@ Télécharger simplement le projet et lancer le script "Setup.bat"
 REQUIREMENTS
 ------------
 Vous devez avoir un PC en Windows 10 or 11.
-Vous devez posséder une seconde partition nommée D:
 
 INFORMATION
 -----------

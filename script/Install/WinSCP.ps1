@@ -9,7 +9,7 @@ function Winscp-Downloader([string]$chemin_dl,[string]$chemin_log){
     $lien_relatif = $($winscp_niv1.Links.href -match "exe")[0]
     $lien_uri = $source.Scheme+"://"+$source.Authority+$lien_relatif
     $winscp_niv2 = Invoke-WebRequest -Uri $lien_uri -UseBasicParsing
-    $winscp_dl =($winscp_niv2.Links.href -match "\.exe")[0]
+    $winscp_dl =($winscp_niv2.Links.href -match '\.exe')[0]
     $winscp_version = $winscp_dl.Split("/")[-1]
 	$version = 'Version :'+$winscp_version
 	Add-Content $chemin_log $version

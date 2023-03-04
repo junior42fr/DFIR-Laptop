@@ -16,9 +16,9 @@ packages_depot=(
  "libpython2-dev"
 )
 
-#SIFT_CLI_LINUX="https://github.com/sans-dfir/sift-cli/releases/download/v1.13.1/sift-cli-linux"
-SIFT_CLI_LINUX="https://github.com/teamdfir/sift-cli/releases/download/v1.14.0-rc1/sift-cli-linux"
+CAST="https://github.com/ekristen/cast/releases/download/v0.14.0/cast_v0.14.0_linux_amd64.deb"
 
+BRIM="https://github.com/brimdata/brim/releases/download/v0.31.0/Brim-0.31.0.deb"
 CAPA="https://github.com/mandiant/capa/releases/download/v4.0.1/capa-v4.0.1-linux.zip"
 DUMPZILLA="http://www.dumpzilla.org/dumpzilla.py"
 FENRIR="https://github.com/Neo23x0/Fenrir"
@@ -50,16 +50,37 @@ Etape20_upgrade() {
 	echo "MISE A JOUR TERMINEE"
 }
 
-Etape30_install_sift(){
+Etape30_install_cast(){
 	echo "---------------------------------------------------------------------"
-	echo "Début de l'installation de la SIFT"
+	echo "Installation de CAST"
 	echo "---------------------------------------------------------------------"
 
-	sudo curl -Lo /usr/local/bin/sift $SIFT_CLI_LINUX
-	sudo chmod +x /usr/local/bin/sift
-	sudo sift install
+	sudo wget $CAST
+	CAST_file=$(echo $CAST | rev |cut -d'/' -f1 | rev)
+	sudo dpkg -i $CAST_file
+	sudo rm -f $CAST_file
+
+	echo "CAST INSTALLE"
+}
+
+Etape31_install_sift(){
+	echo "---------------------------------------------------------------------"
+	echo "Début de l'installation de SIFT"
+	echo "---------------------------------------------------------------------"
+
+	sudo cast install teamdfir/sift-saltstack
 
 	echo "SIFT INSTALLEE"
+}
+
+Etape32_install_remnux(){
+	echo "---------------------------------------------------------------------"
+	echo "Début de l'installation de REMNUX"
+	echo "---------------------------------------------------------------------"
+
+	sudo cast install remnux/salt-states
+
+	echo "REMNUX INSTALLEE"
 }
 
 Etape40_install_packaged_tools(){
@@ -91,20 +112,12 @@ Etape50_install_unpacked_tools(){
 	sudo mkdir /TOOLS
 	ln -s /TOOLS $(pwd)/Bureau/Outils
 
-	#Capa
-	echo " >>>>>>  Installation de Capa "
-	cd /TOOLS
-	#Récupération de CAPA
-	sudo wget $CAPA
-	#Mise en place de CAPA
-	CAPA_file=$(echo $CAPA | rev |cut -d'/' -f1 | rev)
-	sudo unzip $CAPA_file
-	sudo rm $CAPA_file
-	#Ajout de CAPA dans le fichier de documentation
-	echo "CAPA" | sudo tee -a /TOOLS/README_for_tools.txt
-	echo "----" | sudo tee -a /TOOLS/README_for_tools.txt
-	echo "CAPA detects capabilities in executable files. You run it against a PE, ELF, or shellcode file and it tells you what it thinks the program can do. For example, it might suggest that the file is a backdoor, is capable of installing services, or relies on HTTP to communicate." | sudo tee -a /TOOLS/README_for_tools.txt
-	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
+	#Brim
+	echo " >>>>>>  Installation de Brim "
+	sudo wget $BRIM
+	BRIM_file=$(echo $BRIM |rev | cut -d'/' -f1 |rev)
+	sudo dpkg -i $BRIM_file
+	sudo rm -f $BRIM_file
 
 	#Dumpzilla
 	echo " >>>>>>  Installation de Dumpzilla "
@@ -126,18 +139,6 @@ Etape50_install_unpacked_tools(){
 	echo "Simple Bash IOC Scanner" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
 
-	#Floss
-	echo " >>>>>>  Installation de Floss "
-	cd /TOOLS
-	sudo wget $FLOSS
-	arrFLOSS=(${FLOSS//// })
-	sudo unzip ${arrFLOSS[-1]}
-	sudo rm ${arrFLOSS[-1]}
-	echo "FLOSS" | sudo tee -a /TOOLS/README_for_tools.txt
-	echo "-----" | sudo tee -a /TOOLS/README_for_tools.txt
-	echo "FLARE Obfuscated String Solver (FLOSS) - Automatically extract obfuscated strings from malware. " | sudo tee -a /TOOLS/README_for_tools.txt
-	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
-
 	#Loki
 	echo " >>>>>>  Installation de Loki "
 	cd /TOOLS
@@ -153,13 +154,6 @@ Etape50_install_unpacked_tools(){
 	echo "----" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "Simple IOC and Incident Response Scanner" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
-
-	#Oletools
-	echo " >>>>>>  Installation de Oletools "
-	cd /TOOLS
-	#Désactivation de la demande de KDE Wallet Service
-	sudo python -m keyring --disable
-	sudo pip3 install oletools
 
 	#RegRippy
 	echo " >>>>>>  Installation de RegRippy "
@@ -193,6 +187,10 @@ Etape50_install_unpacked_tools(){
 	echo " >>>>>>  Installation de Volatility3 "
 	cd /TOOLS
 	sudo git clone $VOLATILITY3
+	echo "Volatility3" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "-----------" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "The volatile memory extraction framework " | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
 
 	#Zircolite
 	echo " >>>>>>  Installation de Zircolite "
@@ -211,13 +209,25 @@ Etape50_install_unpacked_tools(){
 	sudo ./sigma/tools/sigmac -t sqlite -c ./sigma/tools/config/generic/sysmon.yml -c ./sigma/tools/config/generic/powershell.yml -c ./sigma/tools/config/zircolite.yml -d ./sigma/rules/windows/ --output-fields title,id,description,author,tags,level,falsepositives,filename,status --output-format json -r -o ./Zircolite/rules_sysmon.json --backend-option table=logs
 	sudo ./sigma/tools/sigmac -t sqlite -c ./sigma/tools/config/generic/windows-audit.yml -c ./sigma/tools/config/generic/powershell.yml -c ./sigma/tools/config/zircolite.yml -d ./sigma/rules/windows/ --output-fields title,id,description,author,tags,level,falsepositives,filename,status --output-format json -r -o ./Zircolite/rules_generic.json --backend-option table=logs
 
+	#Docker Splunk
+	echo " >>>>>>  Récupération du docker SPLUNK "
 	sudo docker pull splunk/splunk
 	echo "Docker Splunk" | sudo tee -a /TOOLS/README_for_tools.txt
-	echo "Mot de passe : admin / Port d'écoute : 8000" | sudo tee -a /TOOLS/README_for_tools.txt	
-	echo 'docker run -d -p 8000:8000 -e "SPLUNK_START_ARGS=--accept-license" -e "SPLUNK_PASSWORD=admin" --name splunk splunk/splunk:latest' >> ~/.bashrc
+	echo "-------------" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "The software lets you collect, analyze, and act upon the untapped value of big data that your technology infrastructure, security systems, and business applications generate." | sudo tee -a /TOOLS/README_for_tools.txt
+	echo 'docker run -d -p 8000:8000 -e "SPLUNK_START_ARGS=--accept-license" -e "SPLUNK_PASSWORD=password" --name splunk splunk/splunk:latest' | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "      Mot de passe : password / Port d'écoute : 8000" | sudo tee -a /TOOLS/README_for_tools.txt	
+	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
 	
+	#Docker Suricata
+	echo " >>>>>>  Récupération du docker SURICATA "
 	sudo docker pull jasonish/suricata
 	echo "Docker Suricata" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "---------------" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "Suricata is a high performance, open source network analysis and threat detection software used by most private and public organizations, and embedded by major vendors to protect their assets." | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "LIVE : docker run --rm -it --net=host --cap-add=net_admin --cap-add=net_raw --cap-add=sys_nice -v $(pwd)/logs:/var/log/suricata jasonish/suricata:latest -i <interface>"  | sudo tee -a /TOOLS/README_for_tools.txt
+	echo ""  | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
 
 	echo "---------------------------------------------------------------------"
 	echo "OUTILS INDEPENDANTS INSTALLES"
@@ -251,7 +261,9 @@ Etape60_install_guest_additions(){
 
 Etape10_disableautomaticupdate
 Etape20_upgrade
-Etape30_install_sift
+Etape30_install_cast
+Etape31_install_sift
+Etape32_install_remnux
 Etape40_install_packaged_tools
 Etape50_install_unpacked_tools
 Etape60_install_guest_additions

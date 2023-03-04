@@ -299,6 +299,12 @@ function LinuxCreation($installation){
     (Get-Content -Path $installation.chemin_script_variables) -replace $regex, $remplacement |Set-Content $installation.chemin_script_variables
 
     #Lancement de la creation de la machine via Packer
+    $log = "Creation Linux"
+    Add-Content $installation.chemin_log '*************************'
+    Add-Content $installation.chemin_log $log
+    Add-Content $installation.chemin_log '*************************'
+    write-host "Creation Linux"  -ForegroundColor DarkBlue -BackgroundColor White
+
     $chemin_origine = Get-Location
     Set-Location -Path $installation.chemin_script
     $packer = $installation.chemin_script + "packer.exe"
@@ -331,6 +337,12 @@ function LinuxOvaImport($chemin_base,$chemin_forensic,$chemin_log){
     $ova_path = '"' + $ova[0].FullName + '"'
     $parameter = "import " + $ova_path
     Start-Process -NoNewWindow -Wait -FilePath $global:VIRTUALBOX -ArgumentList $parameter
+
+    $log = "Linux importé"
+    Add-Content $installation.chemin_log '*************************'
+    Add-Content $chemin_log $log
+    Add-Content $installation.chemin_log '*************************'
+    write-host "Linux importé"  -ForegroundColor DarkBlue -BackgroundColor White
 
     #Création du répertoire partagé
     LinuxPartage $chemin_forensic

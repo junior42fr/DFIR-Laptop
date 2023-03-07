@@ -18,7 +18,7 @@ packages_depot=(
 
 CAST="https://github.com/ekristen/cast/releases/download/v0.14.0/cast_v0.14.0_linux_amd64.deb"
 
-BRIM="https://github.com/brimdata/brim/releases/download/v0.31.0/Brim-0.31.0.deb"
+BRIM="https://github.com/brimdata/zui/releases/download/v1.0.0/zui_1.0.0_amd64.deb"
 CAPA="https://github.com/mandiant/capa/releases/download/v4.0.1/capa-v4.0.1-linux.zip"
 DUMPZILLA="http://www.dumpzilla.org/dumpzilla.py"
 FENRIR="https://github.com/Neo23x0/Fenrir"

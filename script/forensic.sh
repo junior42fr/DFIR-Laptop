@@ -18,7 +18,6 @@ packages_depot=(
 
 CAST="https://github.com/ekristen/cast/releases/download/v0.14.0/cast_v0.14.0_linux_amd64.deb"
 
-BRIM="https://github.com/brimdata/zui/releases/download/v1.0.0/zui_1.0.0_amd64.deb"
 CAPA="https://github.com/mandiant/capa/releases/download/v4.0.1/capa-v4.0.1-linux.zip"
 DUMPZILLA="http://www.dumpzilla.org/dumpzilla.py"
 FENRIR="https://github.com/Neo23x0/Fenrir"
@@ -27,8 +26,10 @@ LOKI="https://github.com/Neo23x0/Loki"
 LOKI_SIGNATURE="https://github.com/Neo23x0/signature-base"
 SIGMA="https://github.com/SigmaHQ/sigma"
 VOLATILITY3="https://github.com/volatilityfoundation/volatility3.git"
+VOLATILITY3_SYMBOL="https://github.com/JPCERTCC/Windows-Symbol-Tables.git"
 ZIRCOLITE="https://github.com/wagga40/Zircolite"
 ZIRCOLITE_DOC="https://github.com/wagga40/Zircolite/raw/master/docs/Zircolite_manual.pdf"
+ZUI="https://github.com/brimdata/zui/releases/download/v1.0.0/zui_1.0.0_amd64.deb"
 
 Etape10_disableautomaticupdate(){
 	echo "---------------------------------------------------------------------"
@@ -112,13 +113,6 @@ Etape50_install_unpacked_tools(){
 	sudo mkdir /TOOLS
 	ln -s /TOOLS $(pwd)/Bureau/Outils
 
-	#Brim
-	echo " >>>>>>  Installation de Brim "
-	sudo wget $BRIM
-	BRIM_file=$(echo $BRIM |rev | cut -d'/' -f1 |rev)
-	sudo dpkg -i $BRIM_file
-	sudo rm -f $BRIM_file
-
 	#Dumpzilla
 	echo " >>>>>>  Installation de Dumpzilla "
 	cd /TOOLS
@@ -192,6 +186,11 @@ Etape50_install_unpacked_tools(){
 	echo "The volatile memory extraction framework " | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
 
+	#Ajout de symboles pour volatility3
+	sudo git clone $VOLATILITY3_SYMBOL
+	sudo mv -R Windows-Symbol-Tables/symbols/windows volatility3/volatility3/symbols
+	sudo rm -rf Windows-Symbol-Tables
+
 	#Zircolite
 	echo " >>>>>>  Installation de Zircolite "
 	cd /TOOLS
@@ -208,6 +207,13 @@ Etape50_install_unpacked_tools(){
 	#Création des règles SIGMA dans le dossier Zircolite
 	sudo ./sigma/tools/sigmac -t sqlite -c ./sigma/tools/config/generic/sysmon.yml -c ./sigma/tools/config/generic/powershell.yml -c ./sigma/tools/config/zircolite.yml -d ./sigma/rules/windows/ --output-fields title,id,description,author,tags,level,falsepositives,filename,status --output-format json -r -o ./Zircolite/rules_sysmon.json --backend-option table=logs
 	sudo ./sigma/tools/sigmac -t sqlite -c ./sigma/tools/config/generic/windows-audit.yml -c ./sigma/tools/config/generic/powershell.yml -c ./sigma/tools/config/zircolite.yml -d ./sigma/rules/windows/ --output-fields title,id,description,author,tags,level,falsepositives,filename,status --output-format json -r -o ./Zircolite/rules_generic.json --backend-option table=logs
+
+	#Zui
+	echo " >>>>>>  Installation de Zui "
+	sudo wget $ZUI
+	ZUI_file=$(echo $ZUI |rev | cut -d'/' -f1 |rev)
+	sudo dpkg -i $ZUI_file
+	sudo rm -f $ZUI_file
 
 	#Docker Splunk
 	echo " >>>>>>  Récupération du docker SPLUNK "
@@ -257,6 +263,9 @@ Etape60_install_guest_additions(){
 	echo "---------------------------------------------------------------------"
 	echo "GUEST ADDITIONNAL TOOLS INSTALLES"
 	echo "---------------------------------------------------------------------"
+	
+	echo "Ajout de l'utilisateur au groupe vboxsf pour accéder au partage"
+	sudo adduser $USER vboxsf
 }
 
 Etape10_disableautomaticupdate

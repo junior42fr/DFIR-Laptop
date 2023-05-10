@@ -1,0 +1,31 @@
+$global:SOURCE_Aten = "https://assets.aten.com/product/driver/dw/uc232a_windows_setup_v1.0.087.zip"
+
+#Fonction de telechargement du logiciel
+#Parametre 1 : chemin de telechargement
+#Parametre 2 : chemin du fichier de log
+function Aten-Downloader([string]$chemin_dl,[string]$chemin_log){
+    $ProgressPreference = 'SilentlyContinue'
+	Add-Content $chemin_log 'Telechargement Aten-UC232A'
+    Write-Host "Telechargement Aten-UC232A (environ 8Mo)" -ForegroundColor DarkBlue -BackgroundColor White
+    $aten = $global:SOURCE_Aten
+    $aten_version = $aten.split("/")[-1]
+	$version = 'Version :'+$aten_version
+	Add-Content $chemin_log $version
+    $aten_sauvegarde = $chemin_dl + $aten_version
+
+	#Telechargement de Aten-UC232A
+    Invoke-WebRequest -Uri $aten -UseBasicParsing -OutFile $aten_sauvegarde
+
+	Add-Content $chemin_log 'Telechargement Aten-UC232A OK !'
+	Add-Content $chemin_log '-------------------------------'
+}
+
+#Fonction principale
+#Parametre 1 : download ou install
+#Parametre 2 : chemin de telechargement/installer
+#Parametre 3 : chemin du fichier de log
+if($args[0]){
+    if($args[0] -match "download"){
+		Aten-Downloader $args[1] $args[2]
+	}
+}

@@ -14,6 +14,8 @@ function KAPE-Downloader([string]$chemin_dl,[string]$chemin_log){
 
 	Add-Content $chemin_log 'Telechargement KAPE OK !'
 	Add-Content $chemin_log '------------------------'
+	
+	Expand-Archive -Force -DestinationPath $chemin_dl $KAPE_sauvegarde
 }
 
 #Fonction principale

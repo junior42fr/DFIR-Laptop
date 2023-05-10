@@ -53,8 +53,8 @@
   ],
   "variables": {
     "accelerator": "kvm",
-    "cpus": "4",
-    "disk_size": "80000",
+    "cpus":  "{{ user `cpus` }}",
+    "disk_size":  "{{ user `disk_size` }}",
     "headless": "false",
     "keep_registered": "true",
     "memory": "8192",

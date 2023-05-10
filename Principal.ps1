@@ -15,10 +15,12 @@ $date_export = Get-Date -Format "yyyy-MM-dd"
 ##### Instantiation de la classe d'installation ########
 ########################################################
 Class CInstallation{
-    [boolean]$online                 #acces a  internet
+    [boolean]$online                 #acces a internet
     [boolean]$export                 #exportation pour une future installation hors-ligne
     [boolean]$nettoyage              #suppression de toutes traces sur le PC actuel
-	
+    [boolean]$virtualbox             #virtualbox deja installe
+    [boolean]$zip7                   #7-zip deja installe
+
     [string]$chemin_base             #chemin de l'execution du script PS1
     [string]$chemin_log				 #chemin du fichier de log de l'installation
 	
@@ -27,7 +29,7 @@ Class CInstallation{
     [string]$chemin_script_preseed   #chemin complet vers le fichier preseed
     [string]$chemin_script_ubuntu    #chemin complet vers le fichier json pour packer ubuntu
     [string]$chemin_script_variables #chemin complet vers le fichier de variables pour packer
-    [string]$ipaddress               #adresse IP de l'hôte du script
+    [string]$ipaddress               #adresse IP de l'hote du script
 
 	[string]$chemin_forensic		 #chemin du dossier pour le forensic
 	[string]$chemin_forensic_dumps	 #chemin du dossier pour les elements extraits
@@ -42,7 +44,20 @@ Class CInstallation{
 	[string]$chemin_logiciels        #chemin des logiciels hors-ligne
     [string]$chemin_export           #chemin pour l'exportation des elements le cas echeant
 
-	CInstallation(){}
+	CInstallation(){
+        if(Get-Package | where name -match "VirtualBox"){
+            $this.virtualbox = $true
+        }
+        else{
+            $this.virtualbox = $false
+        }
+        if(Get-Package | where name -match "7-zip"){
+            $this.zip7 = $true
+        }
+        else{
+            $this.zip7 = $false
+        }
+    }
 
 	EnLigne(){
         # Verification de la connexion internet
@@ -72,7 +87,7 @@ Class CInstallation{
 	    }
 	}
 
-    #Création des variables de chemin pour les outils forensic
+    #Creation des variables de chemin pour les outils forensic
     CheminForensic(){
 		# Repertoire pour le forensic sous Windows
 		Add-Type -AssemblyName System.Windows.Forms
@@ -85,7 +100,7 @@ Class CInstallation{
         $this.chemin_forensic_tools = $this.chemin_forensic + "tools\"
     }
 
-    #Création des variables de chemin pour les scripts Linux
+    #Creation des variables de chemin pour les scripts Linux
 	CheminScript($chemin_base){
 		# Chemins concernants les scripts a executer
         $this.chemin_script = $chemin_base + "script\"
@@ -95,7 +110,7 @@ Class CInstallation{
         $this.chemin_script_variables = $this.chemin_script + "variables.json"
 	}
 
-    #Création des variables de chemin pour la VM
+    #Creation des variables de chemin pour la VM
 	CheminVM($chemin_base,$date_export){
         #Definition du chemin de la future VM exportee
         $this.chemin_repertoire_VM = $this.chemin_base + $global:REPERTOIRE_OVA + "\"
@@ -104,7 +119,7 @@ Class CInstallation{
         $this.chemin_ova = $this.chemin_repertoire_VM + $this.nom_ova
 	}
 	
-    #Création des variables de chemin pour le fichier de log et les logiciels telecharges
+    #Creation des variables de chemin pour le fichier de log et les logiciels telecharges
 	CheminAutre($chemin_base,$date_export){
 		# Chemin du fichier de log
         $this.chemin_log=$this.chemin_base + "Telechargement_"+$date_export+".log"
@@ -130,7 +145,7 @@ Class CInstallation{
         }
 	}
 
-    #Verification de la volonte de garder l'hôte le plus propre possible	
+    #Verification de la volonte de garder l'hote le plus propre possible	
 	Nettoyeur($Host_method){
 		$titre = "Nettoyage"
 		$question = "Voulez-vous nettoyer la machine hote a l'issue?"
@@ -141,7 +156,7 @@ Class CInstallation{
 }
 
 ################################################
-##### Fonction de création de répertoire #######
+##### Fonction de creation de repertoire #######
 ################################################
 function WindowsConfiguration([string]$chemin,[string]$chemin_log){
 	#Creation des dossiers de Forensic et parametrage exclusion Defender
@@ -152,7 +167,7 @@ function WindowsConfiguration([string]$chemin,[string]$chemin_log){
 }
     
 #################################################################################
-##### Fonction de mise en place des droits sur le répertoire d'extraction #######
+##### Fonction de mise en place des droits sur le repertoire d'extraction #######
 #################################################################################
 function DirectoryRights([string]$chemin_extract,[string]$chemin_log){
 	#Interdiction de l'execution de programmes depuis le repertoire Extract
@@ -235,10 +250,10 @@ function CheckArboArchivesOffline([string]$chemin_base,[string]$chemin_log){
 }
 
 ################################################
-##### Fonction de création de la VM Linux ######
+##### Fonction de creation de la VM Linux ######
 ################################################
 function LinuxCreation($installation){
-    #Récupération ET DECOMPRESSION de Packer
+    #Recuperation ET DECOMPRESSION de Packer
     $packer_source = "https://developer.hashicorp.com/packer/downloads"
     $ProgressPreference = 'SilentlyContinue'
     Write-Host "Telechargement et decompression Packer (environ 70Mo)" -ForegroundColor DarkBlue -BackgroundColor White
@@ -251,7 +266,7 @@ function LinuxCreation($installation){
 
     Remove-Item -Force $packer_sauvegarde
 
-    #Récupération de Ubuntu
+    #Recuperation de Ubuntu
     $ubuntu_source = "http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/"
     $ProgressPreference = 'SilentlyContinue'
     Write-Host "Telechargement Ubuntu Mini Iso (environ 80Mo)" -ForegroundColor DarkBlue -BackgroundColor White
@@ -275,13 +290,13 @@ function LinuxCreation($installation){
             Set-Content -Path $installation.chemin_script_variables
     }
 
-    #Machine virtuelle à ne pas conserver
+    #Machine virtuelle a ne pas conserver
     if($installation.nettoyage){
         (Get-Content -Path $installation.chemin_script_variables) |
         ForEach-Object {$_ -Replace 'keep_registered": "true', 'keep_registered": "false'} |
             Set-Content -Path $installation.chemin_script_variables
     }
-    #Machine virtuelle à conserver
+    #Machine virtuelle a conserver
     if(-not ($installation.nettoyage)){
         (Get-Content -Path $installation.chemin_script_variables) |
         ForEach-Object {$_ -Replace 'keep_registered": "false', 'keep_registered": "true'} |
@@ -293,7 +308,7 @@ function LinuxCreation($installation){
     $remplacement = '"name": "' + $installation.nom_VM + '"'
     (Get-Content -Path $installation.chemin_script_variables) -replace $regex, $remplacement |Set-Content $installation.chemin_script_variables
 
-    #Adresse IP du PC Hôte (devenu obligatoire suite à un pb avec VBox 7.0)
+    #Adresse IP du PC Hote (devenu obligatoire suite a un pb avec VBox 7.0)
     $regex = '"host_ip": "\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}"'
     $remplacement = '"host_ip": "' + $installation.ipaddress + '"'
     (Get-Content -Path $installation.chemin_script_variables) -replace $regex, $remplacement |Set-Content $installation.chemin_script_variables
@@ -316,10 +331,10 @@ function LinuxCreation($installation){
     #Suppression de l'iso Linux
     Get-ChildItem $installation.chemin_script -Include *.iso -Recurse | Remove-Item
 
-    #Suppression de l'exécutable packer
+    #Suppression de l'executable packer
     Get-ChildItem $installation.chemin_script -Include *.exe -Recurse | Remove-Item
 
-    #Création du répertoire partagé si besoin
+    #Creation du repertoire partage si besoin
     if(-not ($installation.nettoyage)){
         LinuxPartage $installation.chemin_forensic
     }
@@ -338,28 +353,28 @@ function LinuxOvaImport($chemin_base,$chemin_forensic,$chemin_log){
     $parameter = "import " + $ova_path
     Start-Process -NoNewWindow -Wait -FilePath $global:VIRTUALBOX -ArgumentList $parameter
 
-    $log = "Linux importé"
+    $log = "Linux importe"
     Add-Content $installation.chemin_log '*************************'
     Add-Content $chemin_log $log
     Add-Content $installation.chemin_log '*************************'
-    write-host "Linux importé"  -ForegroundColor DarkBlue -BackgroundColor White
+    write-host "Linux importe"  -ForegroundColor DarkBlue -BackgroundColor White
 
-    #Création du répertoire partagé
+    #Creation du repertoire partage
     LinuxPartage $chemin_forensic
 }
 
 
 ###############################################################
-##### Fonction de mise en place du partage hôte/VM Linux ######
+##### Fonction de mise en place du partage hote/VM Linux ######
 ###############################################################
 function LinuxPartage([string]$chemin_forensic){
-    #Récupération de l'ID de la VM Forensic
+    #Recuperation de l'ID de la VM Forensic
     start-Process -NoNewWindow -Wait -FilePath $global:VIRTUALBOX -ArgumentList "list vms" -RedirectStandardOutput "vmlistSource.txt"
 
-    #Création de l'expression régulière
+    #Creation de l'expression reguliere
     $regex = '"'+$global:NOM_BASE_VM +'_\d\d\d\d-\d\d-\d\d"'
 
-    #Récupération des VM existantes dans VirtualBox correspondantes à l'expression régulière
+    #Recuperation des VM existantes dans VirtualBox correspondantes a l'expression reguliere
     $vm = $(Get-Content "vmlistSource.txt")
     
     #Si une VM existe dans VirtualBox
@@ -367,33 +382,33 @@ function LinuxPartage([string]$chemin_forensic){
 
         #Si une seule VM existe dans VirtualBox
         if ($vm.gettype().Name -eq "String"){
-            #Si la machine correspond à l'expression régulière, on garde le nom
+            #Si la machine correspond a l'expression reguliere, on garde le nom
             if($vm -match $regex){
                 $vm_en_cours = $vm
             }
-            #sinon on prévoit une valeur $null
+            #sinon on prevoit une valeur $null
             else{
                 $vm_en_cours = $null
             }
         }
         #Si VirtualBox contient plusieurs VM
         else{
-            #On récupère toutes les VM correspondant à l'expression régulière
+            #On recupere toutes les VM correspondant a l'expression reguliere
             $vm_temp = ($vm -match $regex)
 
-            #Si aucune VM ne correspondait, on prévoit une valeur $null
+            #Si aucune VM ne correspondait, on prevoit une valeur $null
             if(-not($vm_temp)){
                 $vm_en_cours = $null
             }
-            #Sinon on ne conserve que la dernière VM dans la liste
+            #Sinon on ne conserve que la derniere VM dans la liste
             else{
                 $vm_en_cours = $vm_temp[-1]
             }
         }
 
-        #Si une machine Forensic a été trouvé, création du partage
+        #Si une machine Forensic a ete trouve, creation du partage
         if($vm_en_cours){
-            #Récupération de l'ID de la VM
+            #Recuperation de l'ID de la VM
             $vm_id = $vm_en_cours.split(" ")[-1]
             $vm_id = $vm_id.Replace("{","").Replace("}","")
 
@@ -409,92 +424,109 @@ function LinuxPartage([string]$chemin_forensic){
 }
 
 ############################################################################
-##### Fonction d'exportation des outils téléchargés et de la VM Linux ######
+##### Fonction d'exportation des outils telecharges et de la VM Linux ######
 ############################################################################
 function Exportation($installation){
     New-Item -ItemType Directory -Force -Path $installation.chemin_export
     $date_export = Get-Date -Format "yyyy-MM-dd"
 
     #Compression des logiciels windows dans l'archive Logiciels-Windows.zip
-    Write-Host "Compression logiciels Windows" -ForegroundColor DarkBlue -BackgroundColor White
     $zip_logicielswindows = $installation.chemin_export + "Logiciels-Windows.zip"
+    Write-Host "Compression logiciels Windows dans "$zip_logicielswindows -ForegroundColor DarkBlue -BackgroundColor White
     Compress-Archive -Path $installation.chemin_logiciels -DestinationPath $zip_logicielswindows
 
-    #Compression des Tools récupérés dans l'archive "Forensic-Tools.zip"
-    Write-Host "Compression du dossier Tools" -ForegroundColor DarkBlue -BackgroundColor White
+    #Compression des Tools recuperes dans l'archive "Forensic-Tools.zip"
     $chemin_fichier_zip = $installation.chemin_export + $global:TYPE_FORENSIC + "-Tools.zip"
+    Write-Host "Compression du dossier Tools dans "$chemin_fichier_zip -ForegroundColor DarkBlue -BackgroundColor White
     Compress-Archive -Path $installation.chemin_forensic_tools -DestinationPath $chemin_fichier_zip
 
-    #Déplacement de la machine virtuelle
-    Write-Host "Déplacement de la machine virtuelle" -ForegroundColor DarkBlue -BackgroundColor White
+    #Deplacement de la machine virtuelle
     $destination_ova = $installation.chemin_export + $installation.nom_ova
-    Move-Item -Path $installation.chemin_ova -Destination $destination_ova
+    Write-Host "Deplacement de la machine virtuelle vers "$destination_ova -ForegroundColor DarkBlue -BackgroundColor White
+    try{
+        Move-Item -Path $installation.chemin_ova -Destination $destination_ova
+    }
+    catch{
+        Write-Host "!!! L'OVA N'A PAS PU ETRE DEPLACE !!!" -ForegroundColor White -BackgroundColor Red
+    }
 
-    #Compression des fichiers récupérés (tar, zip et ps1) dans une unique archive
+    #Compression des fichiers recuperes (tar, zip et ps1) dans une unique archive
     Write-Host "Compression vers EXPORTATION.zip" -ForegroundColor DarkBlue -BackgroundColor White
-        #paramétrage du nom de fichier de sortie
+        #parametrage du nom de fichier de sortie
     $nom_fichier_export = $installation.chemin_base + 'EXPORTATION-' + $global:TYPE_FORENSIC + $date_export + '.zip'
-        #paramétrage des arguments à passer à 7z pour la création de l'archive
+        #parametrage des arguments a passer a 7z pour la creation de l'archive
     $arguments = 'a ' + $nom_fichier_export + ' -tzip '+$installation.chemin_export+' '+$installation.chemin_base+'Setup.bat '+$installation.chemin_base+'Principal.ps1 ' +$installation.chemin_script
-        #Création de l'archive
+        #Creation de l'archive
     Start-Process -Wait 'C:\Program Files\7-zip\7z.exe' -ArgumentList $arguments
         #Suppression du dossier d'exportation
     Remove-Item -Force -Recurse $installation.chemin_export
 }
 
 #####################################################################
-##### Fonction de suppression des éléments présents sur l'hôte ######
+##### Fonction de suppression des elements presents sur l'hote ######
 #####################################################################
 function Nettoyage($installation){
-    #Suppression des dossiers créés
+    #Suppression des dossiers crees
     Write-Host "Suppression du dossier " $installation.chemin_forensic -foregroundcolor DarkBlue -backgroundcolor White
     Remove-Item -Recurse -Force $installation.chemin_forensic
     
-    #suppression des executables recopiés
-    Write-Host "Suppression des exécutables pour Windows" -foregroundcolor DarkBlue -backgroundcolor White
+    #suppression des executables recopies
+    Write-Host "Suppression des executables pour Windows" -foregroundcolor DarkBlue -backgroundcolor White
     Remove-Item -Force -Recurse -Path $installation.chemin_logiciels
 
-    #suppression du répertoire VirtualBox créé
-    Write-Host "Suppression du répertoire VirtualBox créé" -foregroundcolor DarkBlue -backgroundcolor White
+    #suppression du repertoire VirtualBox cree
+    Write-Host "Suppression du repertoire VirtualBox cree" -foregroundcolor DarkBlue -backgroundcolor White
     Remove-Item -Force -Recurse -Path $installation.chemin_repertoire_VM
 
-    #Installation du gestionnaire de packages Nuget
-    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-    #Désinstallation de Virtualbox
-    $virtualbox_name = Get-Package | where name -match "VirtualBox"
-    Uninstall-Package -Name $virtualbox_name.Name
-    #Désinstallation de 7-Zip
-    $7zip_name = Get-Package | where name -match "7-zip"
-    Uninstall-Package -Name $7zip_name.Name
+    #Installation du gestionnaire de packages Nuget si besoin
+    if(-not($installation.virtualbox) -Or -not($installation.zip7)){
+        Write-Host "Installation du gestionnaire de packages NuGet" -foregroundcolor DarkBlue -backgroundcolor White
+        Add-Content $installation.chemin_log "Installation du gestionnaire de packages NuGet"
+        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+    }
+
+    #Desinstallation de Virtualbox si Virtualbox n'etait pas present sur la machine
+    if(-not($installation.virtualbox))
+    {   
+        Write-Host "Suppression de VirtualBox" -foregroundcolor DarkBlue -backgroundcolor White
+        Add-Content $installation.chemin_log "Desinstallation de Virtualbox"
+        Uninstall-Package -Name $virtualbox_name.Name
+    }
+    #Desinstallation de 7-Zip si 7-zip n'etait pas present sur la machine
+    if(-not($installation.zip7)){
+        Write-Host "Suppression de 7-zip" -foregroundcolor DarkBlue -backgroundcolor White
+        Add-Content $installation.chemin_log "Desinstallation de 7-zip"
+        Uninstall-Package -Name $7zip_name.Name
+    }
 }
 
 ########################################################################################
-##### Fonction de décompression des fichiers zip pour une installation hors-ligne ######
+##### Fonction de decompression des fichiers zip pour une installation hors-ligne ######
 ########################################################################################
 function Decompression($chemin_base,$chemin_logiciels,$chemin_forensic_tools,$chemin_log){
-    #Paramétrage du dossier contenant l'exportation si l'installation est faite depuis un export précédent
+    #Parametrage du dossier contenant l'exportation si l'installation est faite depuis un export precedent
     $dossier_exportation = Get-ChildItem -Recurse -Include 'EXPORTATION' -Path $chemin_base |Select-Object Fullname
 
     if($dossier_exportation){
         $logiciels_zip_temp = $dossier_exportation.FullName + "\Logiciels-Windows.zip"
         $forensic_zip_temp = $dossier_exportation.FullName + "\Forensic-Tools.zip"
 
-        #Décompression du zip contenant les logiciels Windows
+        #Decompression du zip contenant les logiciels Windows
         if(Test-Path $logiciels_zip_temp){
-            Write-Host "Décompression du dépôt local Windows" -foregroundcolor DarkBlue -backgroundcolor White
-            Add-Content $chemin_log "Décompression des logiciels Windows"
-            #suppression du contenu du répertoire s'il existe déjà (afin d'éviter les conflits)
+            Write-Host "Decompression du depot local Windows" -foregroundcolor DarkBlue -backgroundcolor White
+            Add-Content $chemin_log "Decompression des logiciels Windows"
+            #suppression du contenu du repertoire s'il existe deja (afin d'eviter les conflits)
             if(Test-Path $chemin_logiciels){
                 Remove-Item -Force -Recurse $chemin_logiciels
             }
-            #décompression de l'archive
+            #decompression de l'archive
             Expand-Archive -Force -DestinationPath $chemin_base $logiciels_zip_temp
         }
 
-        #Décompression du zip contenant les logiciels Forensic
+        #Decompression du zip contenant les logiciels Forensic
         if(Test-Path $forensic_zip_temp){
-            Write-Host "Décompression du dépôt local Tools" -foregroundcolor DarkBlue -backgroundcolor White
-            Add-Content $chemin_log "Décompression des outils Forensic"
+            Write-Host "Decompression du depot local Tools" -foregroundcolor DarkBlue -backgroundcolor White
+            Add-Content $chemin_log "Decompression des outils Forensic"
             Remove-Item -Force -Recurse $chemin_forensic_tools
             Expand-Archive -Force -DestinationPath $chemin_forensic_tools $forensic_zip_temp
         }
@@ -526,7 +558,7 @@ $installation.CheminScript($chemin_base)
 $installation.CheminVM($chemin_base,$date_export)
 $installation.CheminAutre($chemin_base,$date_export)
 
-#Si on accède à Internet
+#Si on accede a Internet
 if ($installation.online){
     #Demande utilisateur
     #-------------------
@@ -544,7 +576,7 @@ if ($installation.online){
     #Verification de l'arborescence
     CheckArboScriptsOnline $installation.chemin_script $installation.chemin_log
 
-    #Mise en place des éléments Windows
+    #Mise en place des elements Windows
     #----------------------------------
     #Creation des dossiers Windows et configuration des droits
     WindowsConfiguration $installation.chemin_forensic_dumps $installation.chemin_log
@@ -557,7 +589,7 @@ if ($installation.online){
     #Telechargement des logiciels a installer
     Add-Content $installation.chemin_log 'Debut des telechargements'
     Add-Content $installation.chemin_log '*************************'
-    #Logiciels à installer
+    #Logiciels a installer
     try{
         Get-ChildItem ".\script\Install" -ErrorAction stop -Filter *.ps1 | Foreach-Object{
 	        & $_.FullName download $installation.chemin_logiciels $installation.chemin_log
@@ -584,7 +616,7 @@ if ($installation.online){
     }
 
     #Installation des logiciels
-    #Si on ne veut pas revenir à l'état d'origine du PC
+    #Si on ne veut pas revenir a l'etat d'origine du PC
     if(-not($installation.nettoyage)){
         Add-Content $installation.chemin_log 'Debut des installations'
         Add-Content $installation.chemin_log '***********************'
@@ -600,17 +632,23 @@ if ($installation.online){
 	        Add-Content $installation.chemin_log '-----------------'
         }        
     }
-    #Installation de 7z et VirtualBox dans tous les cas
+    #Si on veut revenir a l'etat d'origine du PC
     else{
-        Get-ChildItem ".\script\Install" -ErrorAction stop -Filter 7z*.ps1 | Foreach-Object{
-	        & $_.FullName install $installation.chemin_logiciels $installation.chemin_log
+        #Installation de 7z s'il n'est pas installe
+        if(-not($installation.zip7)){
+            Get-ChildItem ".\script\Install" -ErrorAction stop -Filter 7z*.ps1 | Foreach-Object{
+	            & $_.FullName install $installation.chemin_logiciels $installation.chemin_log
+            }
         }
-        Get-ChildItem ".\script\Install" -ErrorAction stop -Filter VirtualBox*.ps1 | Foreach-Object{
-	        & $_.FullName install $installation.chemin_logiciels $installation.chemin_log
+        #Installation de Virtualbox s'il n'est pas installe
+        if(-not($installation.virtualbox)){
+            Get-ChildItem ".\script\Install" -ErrorAction stop -Filter VirtualBox*.ps1 | Foreach-Object{
+	            & $_.FullName install $installation.chemin_logiciels $installation.chemin_log
+            }
         }
     }
 
-    #Mise en place des éléments Linux
+    #Mise en place des elements Linux
     #--------------------------------
     #Creation de la machine Linux
     if(Get-WmiObject -Class Win32_Product |where name -match "VirtualBox"){
@@ -622,7 +660,7 @@ if ($installation.online){
 
     #Exportation et nettoyage
     #------------------------
-    #Exportation si désirée
+    #Exportation si desiree
     if($installation.export){
         Exportation($installation)
         if($installation.nettoyage){
@@ -631,14 +669,14 @@ if ($installation.online){
     }
 }
 
-#Si on N'accède PAS à Internet
+#Si on N'accede PAS a Internet
 if (-not($installation.online)){
     #Verification
     #------------
     #Verification de l'arborescence
     CheckArboArchivesOffline $installation.chemin_base $installation.chemin_log
 
-    #Mise en place des éléments
+    #Mise en place des elements
     #--------------------------
     WindowsConfiguration $installation.chemin_forensic_dumps $installation.chemin_log
     WindowsConfiguration $installation.chemin_forensic_extract $installation.chemin_log

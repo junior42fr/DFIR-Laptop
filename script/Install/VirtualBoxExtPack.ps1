@@ -30,7 +30,7 @@ function VirtualBoxExtPack-Installer([string]$chemin_dl,[string]$chemin_log){
 	}
 	else{
 		Write-Host "Aucun logiciel VirtualBoxExtPack a installer" -BackgroundColor White -ForegroundColor Red
-        Add-Content $chemin_log "Echec de l'installation de VirtualBoxExtPack"
+        Add-Content $chemin_log "Aucun logiciel VirtualBoxExtPack a installer"
 	}
 	Add-Content $chemin_log '-------------------------'
 }

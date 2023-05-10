@@ -42,7 +42,7 @@ function VirtualBox-Installer([string]$chemin_dl,[string]$chemin_log){
     }
     else{
         Write-Host "Aucun logiciel Microsoft Visual C++ Redistributable a installer" -BackgroundColor White -ForegroundColor Red
-        Add-Content $chemin_log "Echec de l'installation de Microsoft Visual C++ Redistributable"
+        Add-Content $chemin_log "Aucun logiciel Microsoft Visual C++ Redistributable a installer"
     }
 	Add-Content $chemin_log '-------------------------'
 
@@ -59,7 +59,7 @@ function VirtualBox-Installer([string]$chemin_dl,[string]$chemin_log){
     }
     else{
         Write-Host "Aucun logiciel VirtualBox a installer" -BackgroundColor White -ForegroundColor Red
-        Add-Content $chemin_log "Echec de l'installation de VirtualBox"
+        Add-Content $chemin_log "Aucun logiciel VirtualBox a installer"
     }
 	Add-Content $chemin_log '-------------------------'
 }

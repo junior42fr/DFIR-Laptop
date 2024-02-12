@@ -1,21 +1,19 @@
-$global:SOURCE_DBBrowser = "https://sqlitebrowser.org/dl/"
+$global:SOURCE_DBBrowser = "DBBrowserForSQLite.DBBrowserForSQLite"
 
 #Fonction de telechargement du logiciel
 #Parametre 1 : chemin de telechargement
 #Parametre 2 : chemin du fichier de log
 function DBBrowser-Downloader([string]$chemin_dl,[string]$chemin_log){
-    $ProgressPreference = 'SilentlyContinue'
-	Add-Content $chemin_log 'Telechargement DBBrowser'
-    Write-Host "Telechargement DB Browser for SQLite (environ 17Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $dbbrowser = $(@(Invoke-WebRequest -Uri $global:SOURCE_DBBrowser -UseBasicParsing).links.href) -match 'msi$' -match "win64"
-    $dbbrowser_dl = $dbbrowser[-1]
-    $dbbrowser_version = $dbbrowser_dl.split("/")[-1]
-	$version = 'Version :'+$dbbrowser_version
-	Add-Content $chemin_log $version
-    $dbbrowser_sauvegarde = $chemin_dl+"\"+ $dbbrowser_version
+	#Récupération de la version et inscription dans le fichier de log
+	$dbbrowser=winget show --id $global:SOURCE_DBBrowser
+	foreach ($version in $dbbrowser){
+        if ($version -like "Version*"){
+            Add-Content $chemin_log $version
+		}
+	}
 
 	#Telechargement de DBBrowser
-    Invoke-WebRequest -Uri $dbbrowser_dl -UseBasicParsing -OutFile $dbbrowser_sauvegarde
+    & winget download --id $global:SOURCE_DBBrowser -d $chemin_dl
 
 	Add-Content $chemin_log 'Telechargement DBBrowser OK !'
 	Add-Content $chemin_log '-----------------------------'
@@ -29,7 +27,7 @@ function DBBrowser-Installer([string]$chemin_dl,[string]$chemin_log){
 	if($logiciel.FullName){
 		Write-Host "Installation de " $logiciel.FullName -ForegroundColor DarkBlue -BackgroundColor White
         Add-Content $chemin_log "Installation de DBBrowser effectuee"
-        $arguments = '/I '+ $logiciel.FullName +' SHORTCUT_SQLITE_PROGRAMMENU=1 SHORTCUT_SQLCIPHER_PROGRAMMENU=1 SHORTCUT_SQLITE_DESKTOP=1 SHORTCUT_SQLCIPHER_DESKTOP=1 /quiet'
+        $arguments = '/I "'+ $logiciel.FullName +'" SHORTCUT_SQLITE_PROGRAMMENU=1 SHORTCUT_SQLCIPHER_PROGRAMMENU=1 SHORTCUT_SQLITE_DESKTOP=1 SHORTCUT_SQLCIPHER_DESKTOP=1 /quiet /norestart'
         Start-Process -Wait msiexec.exe -ArgumentList $arguments
 	}
 	else{

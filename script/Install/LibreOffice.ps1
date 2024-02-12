@@ -1,22 +1,18 @@
-$global:SOURCE_LibreOffice = "https://download.documentfoundation.org/libreoffice/stable/"
+$global:SOURCE_LibreOffice = "TheDocumentFoundation.LibreOffice"
 
 function LibreOffice-Downloader([string]$chemin_dl,[string]$chemin_log){
-    $ProgressPreference = 'SilentlyContinue'
-	Add-Content $chemin_log 'Telechargement LibreOffice'
-    Write-Host "Telechargement LibreOffice (environ 322Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $libreoffice_niv1 = $(@(Invoke-WebRequest -Uri $global:SOURCE_LibreOffice -UseBasicParsing).links.href) -match '[0-9].[0-9].[0-9]'
-    $libreoffice_niv2 = $global:SOURCE_LibreOffice + $libreoffice_niv1[-1] + "win/x86_64/"
-    $libreoffice_version = $(@(Invoke-WebRequest -Uri $libreoffice_niv2 -UseBasicParsing).links.href) -match '64.msi$'
-    $libreoffice_version = $libreoffice_version[0]
-    $libreoffice_dl = $libreoffice_niv2 + $libreoffice_version
-	$version = 'Version :'+$libreoffice_version
-	Add-Content $chemin_log $version
-    $libreoffice_sauvegarde = $chemin_dl + $libreoffice_version
+	#Récupération de la version et inscription dans le fichier de log
+	$libreoffice=winget show --id $global:SOURCE_LibreOffice
+	foreach ($version in $libreoffice){
+        if ($version -like "Version*"){
+            Add-Content $chemin_log $version
+		}
+	}
 
 	#Telechargement de LibreOffice
-    Invoke-WebRequest -Uri $libreoffice_dl -UseBasicParsing -OutFile $libreoffice_sauvegarde
+    & winget download --id $global:SOURCE_LibreOffice -d $chemin_dl
 
-	Add-Content $chemin_log 'Telechargement LibreOffice OK !'
+    Add-Content $chemin_log 'Telechargement LibreOffice OK !'
 	Add-Content $chemin_log '-------------------------------'
 }
 

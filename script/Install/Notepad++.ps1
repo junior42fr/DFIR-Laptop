@@ -1,21 +1,17 @@
-$global:SOURCE_Notepad = "https://notepad-plus-plus.org/downloads/"
+$global:SOURCE_Notepad = "Notepad++.Notepad++"
 
 function Notepad-Downloader([string]$chemin_dl,[string]$chemin_log){
-    $ProgressPreference = 'SilentlyContinue'
-	Add-Content $chemin_log 'Telechargement Notepad++'
-    Write-Host "Telechargement Notepad++ (environ 5Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $notepad_niv1 = $(@(Invoke-WebRequest -Uri $global:SOURCE_Notepad -UseBasicParsing).links.href) -match "downloads"
-    $notepad_niv1 = $global:SOURCE_Notepad + $notepad_niv1[0].split("/")[-2]
-    $notepad_niv2 = $(@(Invoke-WebRequest -Uri $notepad_niv1 -UseBasicParsing).links.href) -match 'exe$' -match "64"
-    $notepad_dl = $notepad_niv2[0]
-    $notepad_version = $notepad_dl.split("/")[-1]
-	$version = 'Version :'+$notepad_version
-	Add-Content $chemin_log $version
-    $notepad_sauvegarde = $chemin_dl + $notepad_version
-	
+	#Récupération de la version et inscription dans le fichier de log
+	$notepad=winget show --id $global:SOURCE_Notepad
+	foreach ($version in $notepad){
+        if ($version -like "Version*"){
+            Add-Content $chemin_log $version
+		}
+	}
+
 	#Telechargement de Notepad++
-    Invoke-WebRequest -Uri $notepad_dl -UseBasicParsing -OutFile $notepad_sauvegarde
-	
+    & winget download --id $global:SOURCE_Notepad -d $chemin_dl
+
 	Add-Content $chemin_log 'Telechargement Notepad++ OK !'
 	Add-Content $chemin_log '-----------------------------'
 }
@@ -24,7 +20,7 @@ function Notepad-Downloader([string]$chemin_dl,[string]$chemin_log){
 #Parametre 1 : chemin de telechargement
 #Parametre 2 : chemin du fichier de log
 function Notepad-Installer([string]$chemin_dl,[string]$chemin_log){
-	$logiciel = Get-ChildItem -Recurse -Path $chemin_dl -Include npp*.exe | select FullName
+	$logiciel = Get-ChildItem -Recurse -Path $chemin_dl -Include Notepad*.exe | select FullName
     if($logiciel.FullName){
         Write-Host "Installation de " $logiciel.FullName -ForegroundColor DarkBlue -BackgroundColor White
         Add-Content $chemin_log "Installation de Notepad++ effectuee"

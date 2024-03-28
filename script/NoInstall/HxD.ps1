@@ -5,7 +5,7 @@ $global:SOURCE_HxD = "MHNexus.HxD"
 #Parametre 2 : chemin du fichier de log
 function HxD-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$hxd=winget show --id $global:SOURCE_HxD
+	$hxd=winget show --id $global:SOURCE_HxD --accept-package-agreements --accept-source-agreements
 	foreach ($version in $hxd){
         if ($version -match "Version*"){
             Add-Content $chemin_log $version
@@ -13,7 +13,7 @@ function HxD-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de HxD
-    & winget download --id $global:SOURCE_HxD -d $chemin_dl
+    & winget download --id $global:SOURCE_HxD -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement HxD OK !'
 	Add-Content $chemin_log '-----------------------'	

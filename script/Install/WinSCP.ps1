@@ -2,7 +2,7 @@ $global:SOURCE_Winscp = "WinSCP.WinSCP"
 
 function Winscp-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$winscp=winget show --id $global:SOURCE_Winscp
+	$winscp=winget show --id $global:SOURCE_Winscp --accept-package-agreements --accept-source-agreements
 	foreach ($version in $winscp){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -10,7 +10,7 @@ function Winscp-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de 7-zip
-    & winget download --id $global:SOURCE_Winscp -d $chemin_dl
+    & winget download --id $global:SOURCE_Winscp -d $chemin_dl --accept-package-agreements --accept-source-agreements
 	Add-Content $chemin_log 'Telechargement WinSCP OK !'
 	Add-Content $chemin_log '--------------------------'
 }

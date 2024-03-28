@@ -2,7 +2,7 @@ $global:SOURCE_Notepad = "Notepad++.Notepad++"
 
 function Notepad-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$notepad=winget show --id $global:SOURCE_Notepad
+	$notepad=winget show --id $global:SOURCE_Notepad --accept-package-agreements --accept-source-agreements
 	foreach ($version in $notepad){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -10,7 +10,7 @@ function Notepad-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de Notepad++
-    & winget download --id $global:SOURCE_Notepad -d $chemin_dl
+    & winget download --id $global:SOURCE_Notepad -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement Notepad++ OK !'
 	Add-Content $chemin_log '-----------------------------'

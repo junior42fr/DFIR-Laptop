@@ -5,7 +5,7 @@ $global:SOURCE_VCRedist = "Microsoft.VCRedist.2015+.x86"
 #Parametre 2 : chemin du fichier de log
 function VCRedist-Downloader([string]$chemin_dl,[string]$chemin_log){
  	#Récupération de la version et inscription dans le fichier de log
-	$vcredist=winget show --id $global:SOURCE_VCRedist
+	$vcredist=winget show --id $global:SOURCE_VCRedist --accept-package-agreements --accept-source-agreements
 	foreach ($version in $vcredist){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -13,7 +13,7 @@ function VCRedist-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de VCRedist
-    & winget download --id $global:SOURCE_VCRedist -d $chemin_dl
+    & winget download --id $global:SOURCE_VCRedist -d $chemin_dl --accept-package-agreements --accept-source-agreements
 		
     Add-Content $chemin_log 'Telechargement VCRedist-x86 OK !'
 	Add-Content $chemin_log '------------------------------'

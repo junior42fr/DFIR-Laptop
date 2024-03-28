@@ -5,7 +5,7 @@ $global:SOURCE_Firefox = "Mozilla.Firefox"
 #Parametre 2 : chemin du fichier de log
 function Firefox-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$firefox=winget show --id $global:SOURCE_Firefox
+	$firefox=winget show --id $global:SOURCE_Firefox --accept-package-agreements --accept-source-agreements
 	foreach ($version in $firefox){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -13,7 +13,7 @@ function Firefox-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de Firefox
-    & winget download --id $global:SOURCE_Firefox -d $chemin_dl
+    & winget download --id $global:SOURCE_Firefox -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement Firefox OK !'
 	Add-Content $chemin_log '---------------------------'	

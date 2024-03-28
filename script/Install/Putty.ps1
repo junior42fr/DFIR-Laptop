@@ -2,7 +2,7 @@ $global:SOURCE_Putty = "PuTTY.PuTTY"
 
 function Putty-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$putty=winget show --id $global:SOURCE_Putty
+	$putty=winget show --id $global:SOURCE_Putty --accept-package-agreements --accept-source-agreements
 	foreach ($version in $putty){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -10,7 +10,7 @@ function Putty-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de Putty
-    & winget download --id $global:SOURCE_Putty -d $chemin_dl
+    & winget download --id $global:SOURCE_Putty -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement Putty OK !'
 	Add-Content $chemin_log '-------------------------'	

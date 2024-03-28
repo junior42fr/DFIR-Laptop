@@ -2,7 +2,7 @@ $global:SOURCE_AcrobatReader = "Adobe.Acrobat.Reader.64-bit"
 
 function AcrobatReader-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$acrobatReader=winget show --id $global:SOURCE_AcrobatReader
+	$acrobatReader=winget show --id $global:SOURCE_AcrobatReader --accept-package-agreements --accept-source-agreements
 	foreach ($version in $acrobatReader){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -10,7 +10,7 @@ function AcrobatReader-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de Acrobat Reader
-    & winget download --id $global:SOURCE_AcrobatReader -d $chemin_dl
+    & winget download --id $global:SOURCE_AcrobatReader -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
     Add-Content $chemin_log 'Telechargement Acrobat Reader OK !'
 	Add-Content $chemin_log '----------------------------------'

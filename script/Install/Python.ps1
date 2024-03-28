@@ -2,7 +2,7 @@ $global:SOURCE_Python = "Python.Python.3.12"
 
 function Python-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$python=winget show --id $global:SOURCE_Python
+	$python=winget show --id $global:SOURCE_Python --accept-package-agreements --accept-source-agreements
 	foreach ($version in $python){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -10,7 +10,7 @@ function Python-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de Python
-    & winget download --id $global:SOURCE_Python -d $chemin_dl
+    & winget download --id $global:SOURCE_Python -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement Python OK !'
 	Add-Content $chemin_log '--------------------------'

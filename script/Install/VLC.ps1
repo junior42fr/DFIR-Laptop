@@ -2,7 +2,7 @@ $global:SOURCE_VLC = "VideoLAN.VLC"
 
 function VLC-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$vlc=winget show --id $global:SOURCE_VLC
+	$vlc=winget show --id $global:SOURCE_VLC --accept-package-agreements --accept-source-agreements
 	foreach ($version in $vlc){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -10,7 +10,7 @@ function VLC-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de VLC
-    & winget download --id $global:SOURCE_VLC -d $chemin_dl
+    & winget download --id $global:SOURCE_VLC -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement VLC OK !'
 	Add-Content $chemin_log '-----------------------'

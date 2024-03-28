@@ -2,7 +2,7 @@ $global:SOURCE_Chrome = "Google.Chrome"
 
 function Chrome-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$chrome=winget show --id $global:SOURCE_Chrome
+	$chrome=winget show --id $global:SOURCE_Chrome --accept-package-agreements --accept-source-agreements
 	foreach ($version in $chrome){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -10,7 +10,7 @@ function Chrome-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de Google Chrome
-    & winget download --id $global:SOURCE_Chrome -d $chemin_dl
+    & winget download --id $global:SOURCE_Chrome -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement Google Chrome OK !'
 	Add-Content $chemin_log '------------------------'

@@ -5,7 +5,7 @@ $global:SOURCE_Dokan = "dokan-dev.Dokany"
 #Parametre 2 : chemin du fichier de log
 function Dokan-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$dokan=winget show --id $global:SOURCE_Dokan
+	$dokan=winget show --id $global:SOURCE_Dokan --accept-package-agreements --accept-source-agreements
 	foreach ($version in $dokan){
         if ($version -match "Version*"){
             Add-Content $chemin_log $version
@@ -13,7 +13,7 @@ function Dokan-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de Dokan
-    & winget download --id $global:SOURCE_Dokan -d $chemin_dl
+    & winget download --id $global:SOURCE_Dokan -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement Dokan OK !'
 	Add-Content $chemin_log '---------------------------'	

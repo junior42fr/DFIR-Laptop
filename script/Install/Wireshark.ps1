@@ -5,7 +5,7 @@ $global:SOURCE_Wireshark = "WiresharkFoundation.Wireshark"
 #Parametre 2 : chemin du fichier de log
 function Wireshark-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$wireshark=winget show --id $global:SOURCE_Wireshark
+	$wireshark=winget show --id $global:SOURCE_Wireshark --accept-package-agreements --accept-source-agreements
  	foreach ($version in $wireshark){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -13,7 +13,7 @@ function Wireshark-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de Wireshark
-    & winget download --id $global:SOURCE_Wireshark -d $chemin_dl
+    & winget download --id $global:SOURCE_Wireshark -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement Wireshark OK !'
 	Add-Content $chemin_log '-----------------------------'

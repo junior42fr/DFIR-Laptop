@@ -6,7 +6,7 @@ $global:SOURCE_Brim = "brimdata.brim"
 function Brim-Downloader([string]$chemin_dl,[string]$chemin_log){
     #Récupération de la version et inscription dans le fichier de log
     Add-Content $chemin_log "Fonction Téléchargement de Zui/Brim"
-    $brim=winget show --id $global:SOURCE_Brim
+    $brim=winget show --id $global:SOURCE_Brim --accept-package-agreements --accept-source-agreements
     foreach ($version in $brim){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -15,7 +15,7 @@ function Brim-Downloader([string]$chemin_dl,[string]$chemin_log){
 
     #Telechargement de Brim
     Add-Content $chemin_log "Lancement Téléchargement de Zui/Brim"
-    & winget download --id $global:SOURCE_Brim -d $chemin_dl
+    & winget download --id $global:SOURCE_Brim -d $chemin_dl --accept-package-agreements --accept-source-agreements
 	
     Add-Content $chemin_log 'Telechargement Brim/Zui OK !'
     Add-Content $chemin_log '----------------------------'

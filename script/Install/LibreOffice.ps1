@@ -2,7 +2,7 @@ $global:SOURCE_LibreOffice = "TheDocumentFoundation.LibreOffice"
 
 function LibreOffice-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$libreoffice=winget show --id $global:SOURCE_LibreOffice
+	$libreoffice=winget show --id $global:SOURCE_LibreOffice --accept-package-agreements --accept-source-agreements
 	foreach ($version in $libreoffice){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -10,7 +10,7 @@ function LibreOffice-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de LibreOffice
-    & winget download --id $global:SOURCE_LibreOffice -d $chemin_dl
+    & winget download --id $global:SOURCE_LibreOffice -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
     Add-Content $chemin_log 'Telechargement LibreOffice OK !'
 	Add-Content $chemin_log '-------------------------------'

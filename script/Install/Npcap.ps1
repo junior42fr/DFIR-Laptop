@@ -2,7 +2,7 @@ $global:SOURCE_NPCap = "Insecure.Npcap"
 
 function Npcap-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$npcap=winget show --id $global:SOURCE_NPCap
+	$npcap=winget show --id $global:SOURCE_NPCap --accept-package-agreements --accept-source-agreements
 	foreach ($version in $npcap){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -10,7 +10,7 @@ function Npcap-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de NpCap
-    & winget download --id $global:SOURCE_NPCap -d $chemin_dl
+    & winget download --id $global:SOURCE_NPCap -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement NPCap OK !'
 	Add-Content $chemin_log '-------------------------'

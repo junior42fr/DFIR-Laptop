@@ -5,7 +5,7 @@ $global:SOURCE_VirtualBox = "Oracle.VirtualBox"
 #Parametre 2 : chemin du fichier de log
 function VirtualBox-Downloader([string]$chemin_dl,[string]$chemin_log){
  	#Récupération de la version et inscription dans le fichier de log
-	$virtualbox=winget show --id $global:SOURCE_VirtualBox
+	$virtualbox=winget show --id $global:SOURCE_VirtualBox --accept-package-agreements --accept-source-agreements
 	foreach ($version in $virtualbox){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -13,7 +13,7 @@ function VirtualBox-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de VirtualBox
-    & winget download --id $global:SOURCE_VirtualBox -d $chemin_dl --skip-dependencies
+    & winget download --id $global:SOURCE_VirtualBox -d $chemin_dl --skip-dependencies --accept-package-agreements --accept-source-agreements
 		
     Add-Content $chemin_log 'Telechargement VirtualBox OK !'
 	Add-Content $chemin_log '------------------------------'

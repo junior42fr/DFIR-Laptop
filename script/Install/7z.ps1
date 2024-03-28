@@ -5,7 +5,7 @@ $global:SOURCE_7Zip = "7zip.7zip"
 #Parametre 2 : chemin du fichier de log
 function 7z-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$7zip=winget show --id $global:SOURCE_7Zip
+	$7zip=winget show --id $global:SOURCE_7Zip --accept-package-agreements --accept-source-agreements
 	foreach ($version in $7zip){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -13,7 +13,7 @@ function 7z-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de 7-zip
-    & winget download --id $global:SOURCE_7Zip -d $chemin_dl
+    & winget download --id $global:SOURCE_7Zip -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
     Add-Content $chemin_log 'Telechargement 7-Zip OK !'
 	Add-Content $chemin_log '-------------------------'

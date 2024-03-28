@@ -2,7 +2,7 @@ $global:SOURCE_DesktopRuntime = "Microsoft.DotNet.DesktopRuntime.6"
 
 function DesktopRuntime-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$desktopruntime=winget show --id $global:SOURCE_DesktopRuntime
+	$desktopruntime=winget show --id $global:SOURCE_DesktopRuntime --accept-package-agreements --accept-source-agreements
 	foreach ($version in $desktopruntime){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -10,7 +10,7 @@ function DesktopRuntime-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de DesktopRuntime 6
-    & winget download --id $global:SOURCE_DesktopRuntime -d $chemin_dl
+    & winget download --id $global:SOURCE_DesktopRuntime -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement Desktop Runtime 6 OK !'
 	Add-Content $chemin_log '-------------------------'

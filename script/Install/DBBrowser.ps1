@@ -5,7 +5,7 @@ $global:SOURCE_DBBrowser = "DBBrowserForSQLite.DBBrowserForSQLite"
 #Parametre 2 : chemin du fichier de log
 function DBBrowser-Downloader([string]$chemin_dl,[string]$chemin_log){
 	#Récupération de la version et inscription dans le fichier de log
-	$dbbrowser=winget show --id $global:SOURCE_DBBrowser
+	$dbbrowser=winget show --id $global:SOURCE_DBBrowser --accept-package-agreements --accept-source-agreements
 	foreach ($version in $dbbrowser){
         if ($version -like "Version*"){
             Add-Content $chemin_log $version
@@ -13,7 +13,7 @@ function DBBrowser-Downloader([string]$chemin_dl,[string]$chemin_log){
 	}
 
 	#Telechargement de DBBrowser
-    & winget download --id $global:SOURCE_DBBrowser -d $chemin_dl
+    & winget download --id $global:SOURCE_DBBrowser -d $chemin_dl --accept-package-agreements --accept-source-agreements
 
 	Add-Content $chemin_log 'Telechargement DBBrowser OK !'
 	Add-Content $chemin_log '-----------------------------'

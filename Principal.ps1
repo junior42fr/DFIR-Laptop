@@ -7,6 +7,8 @@ $global:VIRTUALBOXMANAGE = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
 $global:VIRTUALBOX = "C:\Program Files\Oracle\VirtualBox\VirtualBox.exe"
 $global:PACKER_UBUNTU = "ubuntu.json.pkr.hcl"
 $global:PACKER_VARIABLE = "variables.pkrvars.hcl"
+$global:PACKER_LINUX = "autoinstall.yaml"
+$global:PACKER_PROVISIONER = "forensic.sh"
 
 ########################################################
 ##### Recuperation du nom de l'hote et de la date ######
@@ -198,7 +200,7 @@ function CheckArboScriptsOnline([string]$chemin_script,[string]$chemin_log){
 
     #Configuration des fichiers a verifier
     $fichiers_linux = New-Object System.Collections.ArrayList
-    $fichiers_linux.AddRange(("forensic.sh","preseed.cfg",$global:PACKER_UBUNTU,$global:PACKER_VARIABLE))
+    $fichiers_linux.AddRange(($global:PACKER_PROVISIONER,$global:PACKER_LINUX,$global:PACKER_UBUNTU,$global:PACKER_VARIABLE))
 
     foreach ($fichier in $fichiers_linux){
         $chemin = $chemin_script + $fichier

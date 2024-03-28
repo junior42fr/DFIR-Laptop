@@ -7,8 +7,6 @@ REQUIREMENTS
 ------------
 Vous devez avoir un PC en Windows 10 or 11.
 
-Winget doit être installé sur le PC de téléchargement.
-
 INFORMATIONS
 ------------
 Les identifiants pour la machine virtuelle (VirtualBox) sont "analyste/analyste".

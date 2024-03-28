@@ -1,18 +1,16 @@
-$global:SOURCE_Rufus = "https://rufus.ie/downloads/"
+$global:SOURCE_Rufus = "Rufus.Rufus"
 
 function Rufus-Downloader([string]$chemin_dl,[string]$chemin_log){
-    $ProgressPreference = 'SilentlyContinue'
-	Add-Content $chemin_log 'Telechargement Rufus'
-    Write-Host "Telechargement Rufus (1.1Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $rufus = $(@(Invoke-WebRequest -Uri $Global:SOURCE_Rufus -UseBasicParsing).links.href) -match 'p.exe'
-    $rufus_dl = $rufus[0]
-	$rufus_version = $rufus_dl.split("/")[-1]
-    $rufus_sauvegarde = $chemin_dl + $rufus_version
-	$version = 'Version :'+$rufus_version
-	Add-Content $chemin_log $version
+   	#Récupération de la version et inscription dans le fichier de log
+	$rufus=winget show --id $global:SOURCE_Rufus
+	foreach ($version in $rufus){
+        if ($version -like "Version*"){
+            Add-Content $chemin_log $version
+		}
+	}
 
 	#Telechargement de Rufus
-    Invoke-WebRequest -Uri $rufus_dl -UseBasicParsing -Outfile $rufus_sauvegarde
+    & winget download --id $global:SOURCE_Rufus -d $chemin_dl
 
 	Add-Content $chemin_log 'Telechargement Rufus OK !'
 	Add-Content $chemin_log '-------------------------'

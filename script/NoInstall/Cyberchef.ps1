@@ -1,4 +1,4 @@
-$global:SOURCE_Cyberchef = "https://github.com/gchq/CyberChef/releases/download/v9.55.0/CyberChef_v9.55.0.zip"
+$global:SOURCE_Cyberchef = "https://github.com/gchq/CyberChef/releases/download/v10.8.2/CyberChef_v10.8.2.zip"
 
 #Fonction de telechargement du logiciel
 #Parametre 1 : chemin de telechargement

@@ -1,0 +1,9 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: Package | Install wget
+      apt:
+        name: wget
+        update_cache: no
+      become: yes

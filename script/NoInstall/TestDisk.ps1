@@ -1,20 +1,16 @@
-$global:SOURCE_TestDisk = "https://www.cgsecurity.org/wiki/TestDisk_Download"
+$global:SOURCE_TestDisk = "CGSecurity.TestDisk"
 
 function TestDisk-Downloader([string]$chemin_dl,[string]$chemin_log){
-    $ProgressPreference = 'SilentlyContinue'
-	Add-Content $chemin_log 'Telechargement TestDisk'
-    Write-Host "Telechargement TestDisk/Photorec pour Windows (environ 25Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $testdisk = Invoke-WebRequest -Uri $global:SOURCE_TestDisk -UseBasicParsing
-    $testdisk = @($testdisk.links.href |Select-String "win64.zip" |sort -Unique -Descending)[0]
-    $testdisk_dl = $testdisk.Line -replace "Download_and_donate.php/"
-    #Parametrage du nom de fichier local telecharge
-    $testdisk_version = $testdisk_dl.split("/")[-1]
-    $testdisk_sauvegarde = $chemin_dl + $testdisk_version
-	$version = 'Version :'+$testdisk_version
-	Add-Content $chemin_log $version
- 
-	#Telechargement de TestDisk
-    Invoke-WebRequest -Uri $testdisk_dl -UseBasicParsing -Outfile $testdisk_sauvegarde
+   	#Récupération de la version et inscription dans le fichier de log
+	$testdisk=winget show --id $global:SOURCE_TestDisk
+	foreach ($version in $testdisk){
+        if ($version -like "Version*"){
+            Add-Content $chemin_log $version
+		}
+	}
+
+	#Telechargement de Test Disk
+    & winget download --id $global:SOURCE_TestDisk -d $chemin_dl
 
 	Add-Content $chemin_log 'Telechargement TestDisk OK !'
 	Add-Content $chemin_log '----------------------------'

@@ -16,7 +16,7 @@ packages_depot=(
  "libpython2-dev"
 )
 
-CAST="https://github.com/ekristen/cast/releases/download/v0.14.0/cast_v0.14.0_linux_amd64.deb"
+CAST="https://github.com/ekristen/cast/releases/download/v0.14.24/cast-v0.14.24-linux-amd64.deb"
 
 CAPA="https://github.com/mandiant/capa/releases/download/v4.0.1/capa-v4.0.1-linux.zip"
 DUMPZILLA="http://www.dumpzilla.org/dumpzilla.py"
@@ -35,16 +35,15 @@ Etape10_disableautomaticupdate(){
 	echo "---------------------------------------------------------------------"
 	echo "DESACTIVATION de la MISE A JOUR AUTOMATIQUE"
 	echo "---------------------------------------------------------------------"
-
-	sudo sed -i 's/1/0/g' /etc/apt/apt.conf.d/20auto-upgrades
+    sudo sed -i 's/1/0/g' /etc/apt/apt.conf.d/20auto-upgrades
 }
 
 Etape20_upgrade() {
 	echo "---------------------------------------------------------------------"
 	echo "Début de la MISE A JOUR"
 	echo "---------------------------------------------------------------------"
-
-	sudo add-apt-repository -y ppa:gift/stable
+    sudo add-apt-repository -y ppa:gift/stable
+	
 	sudo apt update
 	sudo apt-get -f install
 	
@@ -92,12 +91,12 @@ Etape40_install_packaged_tools(){
 	for package in "${packages_depot[@]}"
 	do
 		echo "---------------------------------------------------------------------"
-		echo "Installation du package $1"
+		echo "Installation du package $package"
 		echo "---------------------------------------------------------------------"		
 		sudo apt install -y $package
 		if [ $? -ne 0 ]; then
 			echo "*********************************************************************"
-			echo "************** IMPOSSIBLE D'INSTALLER LE PACKAGE $1 *****************"
+			echo "************** IMPOSSIBLE D'INSTALLER LE PACKAGE $package ***********"
 			echo "*********************************************************************"
 		fi
 	done
@@ -232,9 +231,17 @@ Etape50_install_unpacked_tools(){
 	echo "---------------" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "Suricata is a high performance, open source network analysis and threat detection software used by most private and public organizations, and embedded by major vendors to protect their assets." | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "LIVE : docker run --rm -it --net=host --cap-add=net_admin --cap-add=net_raw --cap-add=sys_nice -v $(pwd)/logs:/var/log/suricata jasonish/suricata:latest -i <interface>"  | sudo tee -a /TOOLS/README_for_tools.txt
-	echo ""  | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
 
+    #Docker Zircolite
+	echo " >>>>>>  Récupération du docker ZIRCOLITE "
+    sudo docker pull wagga40/zircolite
+    echo "Docker Zircolite" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "----------------" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "Use in case of Azeroth" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo 'docker run --rm --tty -v EVTX_DIR:/case/input:ro -v OUTPUT_DIR:/case/output wagga40/zircolite --ruleset rules/rules_windows_generic_full.json --evtx /case/input -o /case/output/OUTPUT_FILE.json")' | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
+	
 	echo "---------------------------------------------------------------------"
 	echo "OUTILS INDEPENDANTS INSTALLES"
 	echo "---------------------------------------------------------------------"
@@ -249,7 +256,7 @@ Etape60_install_guest_additions(){
 	sudo mkdir -p /media/cdrom
 
 	echo "Montage du fichier VBoxGuestAdditions.iso"
-	sudo mount -t auto /home/analyste/VBoxGuestAdditions.iso /media/cdrom
+	sudo mount -t auto /home/$USER/VBoxGuestAdditions.iso /media/cdrom
 
 	echo "Copie de VBoxLinuxAdditions.run	dans /tmp"
 	sudo cp /media/cdrom/VBoxLinuxAdditions.run	/tmp/VBoxLinuxAdditions.run
@@ -268,11 +275,13 @@ Etape60_install_guest_additions(){
 	sudo adduser $USER vboxsf
 }
 
+sleep 10
 Etape10_disableautomaticupdate
 Etape20_upgrade
 Etape30_install_cast
 Etape31_install_sift
-Etape32_install_remnux
+###Etape32_install_remnux
 Etape40_install_packaged_tools
 Etape50_install_unpacked_tools
 Etape60_install_guest_additions
+sudo apt install ubuntu-desktop-minimal -y -q

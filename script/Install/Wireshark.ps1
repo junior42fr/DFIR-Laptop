@@ -1,18 +1,19 @@
-$global:SOURCE_Wireshark = "https://www.wireshark.org/download.html"
+$global:SOURCE_Wireshark = "WiresharkFoundation.Wireshark"
 
+#Fonction de telechargement du logiciel
+#Parametre 1 : chemin de telechargement
+#Parametre 2 : chemin du fichier de log
 function Wireshark-Downloader([string]$chemin_dl,[string]$chemin_log){
-    $ProgressPreference = 'SilentlyContinue'
-	Add-Content $chemin_log 'Telechargement Wireshark'
-    Write-Host "Telechargement Wireshark (environ 80Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $wireshark = $(@(invoke-Webrequest -Uri $global:SOURCE_Wireshark -UseBasicParsing).links.href) -match "exe" -match "win64"
-    $wireshark_dl = $wireshark[0]
-    $wireshark_version = $wireshark_dl.split("/")[-1]
-	$version = 'Version :'+$wireshark_version
-	Add-Content $chemin_log $version
-    $wireshark_sauvegarde = $chemin_dl + $wireshark_version
+	#Récupération de la version et inscription dans le fichier de log
+	$wireshark=winget show --id $global:SOURCE_Wireshark
+ 	foreach ($version in $wireshark){
+        if ($version -like "Version*"){
+            Add-Content $chemin_log $version
+		}
+	}
 
 	#Telechargement de Wireshark
-    Invoke-WebRequest -Uri $wireshark_dl -UseBasicParsing -OutFile $wireshark_sauvegarde
+    & winget download --id $global:SOURCE_Wireshark -d $chemin_dl
 
 	Add-Content $chemin_log 'Telechargement Wireshark OK !'
 	Add-Content $chemin_log '-----------------------------'

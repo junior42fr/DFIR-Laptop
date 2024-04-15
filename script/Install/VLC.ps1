@@ -1,19 +1,16 @@
-$global:SOURCE_VLC = "https://ftp.free.org/mirrors/videolan/vlc/"
+$global:SOURCE_VLC = "VideoLAN.VLC"
 
 function VLC-Downloader([string]$chemin_dl,[string]$chemin_log){
-    $ProgressPreference = 'SilentlyContinue'
-	Add-Content $chemin_log 'Telechargement VLC'
-    Write-Host "Telechargement VLC (environ 60Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $vlc_niv1 = $(@(Invoke-WebRequest -Uri $global:SOURCE_VLC -UseBasicParsing).links.href) -match '[0-9].[0-9].[0-9]'
-    $vlc_niv2 = $global:SOURCE_VLC + $vlc_niv1[-1] + "win64/"
-    $vlc_version = $(@(Invoke-WebRequest -Uri $vlc_niv2 -UseBasicParsing).links.href) -match 'msi$'
-    $vlc_dl = $vlc_niv2 + $vlc_version
-	$version = 'Version :'+$vlc_version
-	Add-Content $chemin_log $version
-    $vlc_sauvegarde = $chemin_dl + $vlc_version
-	
+	#Récupération de la version et inscription dans le fichier de log
+	$vlc=winget show --id $global:SOURCE_VLC
+	foreach ($version in $vlc){
+        if ($version -like "Version*"){
+            Add-Content $chemin_log $version
+		}
+	}
+
 	#Telechargement de VLC
-    Invoke-WebRequest -Uri $vlc_dl -UseBasicParsing -OutFile $vlc_sauvegarde
+    & winget download --id $global:SOURCE_VLC -d $chemin_dl
 
 	Add-Content $chemin_log 'Telechargement VLC OK !'
 	Add-Content $chemin_log '-----------------------'
@@ -27,7 +24,7 @@ function VLC-Installer([string]$chemin_dl,[string]$chemin_log){
 	if($logiciel.FullName){
 		Write-Host "Installation de " $logiciel.FullName -ForegroundColor DarkBlue -BackgroundColor White
         Add-Content $chemin_log "Installation de VLC effectuee"
-        $arguments = '/I ' + $logiciel.FullName + ' /quiet'
+        $arguments = '/I "' + $logiciel.FullName + '" /quiet'
         Start-Process -Wait msiexec.exe -ArgumentList $arguments
 	}
 	else{

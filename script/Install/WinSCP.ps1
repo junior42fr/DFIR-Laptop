@@ -1,23 +1,16 @@
-$global:SOURCE_Winscp = "https://winscp.net/eng/downloads.php"
+$global:SOURCE_Winscp = "WinSCP.WinSCP"
 
 function Winscp-Downloader([string]$chemin_dl,[string]$chemin_log){
-    $ProgressPreference = 'SilentlyContinue'
-	Add-Content $chemin_log 'Telechargement WinSCP'
-    Write-Host "Telechargement WinSCP (environ 12Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    [uri]$source = $global:SOURCE_Winscp
-    $winscp_niv1 = Invoke-WebRequest -Uri $source.OriginalString -UseBasicParsing
-    $lien_relatif = $($winscp_niv1.Links.href -match "exe")[0]
-    $lien_uri = $source.Scheme+"://"+$source.Authority+$lien_relatif
-    $winscp_niv2 = Invoke-WebRequest -Uri $lien_uri -UseBasicParsing
-    $winscp_dl =($winscp_niv2.Links.href -match '\.exe')[0]
-    $winscp_version = $winscp_dl.Split("/")[-1]
-	$version = 'Version :'+$winscp_version
-	Add-Content $chemin_log $version
-    $winscp_sauvegarde = $chemin_dl + $winscp_version
+	#Récupération de la version et inscription dans le fichier de log
+	$winscp=winget show --id $global:SOURCE_Winscp
+	foreach ($version in $winscp){
+        if ($version -like "Version*"){
+            Add-Content $chemin_log $version
+		}
+	}
 
-	#Telechargement de WinSCP
-    Invoke-WebRequest -Uri $winscp_dl -UseBasicParsing -OutFile $winscp_sauvegarde
-
+	#Telechargement de 7-zip
+    & winget download --id $global:SOURCE_Winscp -d $chemin_dl
 	Add-Content $chemin_log 'Telechargement WinSCP OK !'
 	Add-Content $chemin_log '--------------------------'
 }

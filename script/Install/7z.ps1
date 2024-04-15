@@ -1,21 +1,19 @@
-$global:SOURCE_7Zip = "https://www.7-zip.org/download.html"
+$global:SOURCE_7Zip = "7zip.7zip"
 
 #Fonction de telechargement du logiciel
 #Parametre 1 : chemin de telechargement
 #Parametre 2 : chemin du fichier de log
 function 7z-Downloader([string]$chemin_dl,[string]$chemin_log){
-    $ProgressPreference = 'SilentlyContinue'
-    Add-Content $chemin_log 'Telechargement 7-Zip'
-    Write-Host "Telechargement 7-Zip (environ 1.7Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $7zip = $(@(Invoke-WebRequest -Uri $global:SOURCE_7Zip -UseBasicParsing).links.href) -match "64" -match 'exe$'
-    $7zip_dl = $global:SOURCE_7Zip.split("/")[2] + "/" + $7zip[0]
-    $7zip_version = $7zip_dl.Split("/")[-1]
-	$version = 'Version :'+$7zip_version
-	Add-Content $chemin_log $version
-    $7zip_sauvegarde = $installation.chemin_logiciels + $7zip_version
+	#Récupération de la version et inscription dans le fichier de log
+	$7zip=winget show --id $global:SOURCE_7Zip
+	foreach ($version in $7zip){
+        if ($version -like "Version*"){
+            Add-Content $chemin_log $version
+		}
+	}
 
 	#Telechargement de 7-zip
-    Invoke-WebRequest -Uri $7zip_dl -UseBasicParsing -OutFile $7zip_sauvegarde
+    & winget download --id $global:SOURCE_7Zip -d $chemin_dl
 
     Add-Content $chemin_log 'Telechargement 7-Zip OK !'
 	Add-Content $chemin_log '-------------------------'
@@ -25,7 +23,7 @@ function 7z-Downloader([string]$chemin_dl,[string]$chemin_log){
 #Parametre 1 : chemin de telechargement
 #Parametre 2 : chemin du fichier de log
 function 7z-Installer([string]$chemin_dl,[string]$chemin_log){
-   	$logiciel = Get-ChildItem -Recurse -Path $chemin_dl -Include 7z*.exe | select FullName
+   	$logiciel = Get-ChildItem -Recurse -Path $chemin_dl -Include 7-Zip*.exe | select FullName
 	if($logiciel.FullName){
         Write-Host "Installation de " $logiciel.FullName -ForegroundColor DarkBlue -BackgroundColor White
         Add-Content $chemin_log "Installation de 7-Zip effectuee"

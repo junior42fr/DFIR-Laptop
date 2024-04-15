@@ -1,17 +1,16 @@
-$global:SOURCE_Python = "https://www.python.org/downloads/release/python-395/"
+$global:SOURCE_Python = "Python.Python.3.12"
 
 function Python-Downloader([string]$chemin_dl,[string]$chemin_log){
-    $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Telechargement Python (environ 28Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $python = $(@(Invoke-WebRequest -Uri $global:SOURCE_Python -UseBasicParsing).links.href) -match 'exe$' -match "64"
-    $python_dl = $python[0]
-    $python_version = $python_dl.Split("/")[-1]
-	$version = 'Version :'+$python_version
-	Add-Content $chemin_log $version
-    $python_sauvegarde = $chemin_dl + $python_version
+	#Récupération de la version et inscription dans le fichier de log
+	$python=winget show --id $global:SOURCE_Python
+	foreach ($version in $python){
+        if ($version -like "Version*"){
+            Add-Content $chemin_log $version
+		}
+	}
 
 	#Telechargement de Python
-    Invoke-WebRequest -Uri $python_dl -UseBasicParsing -OutFile $python_sauvegarde
+    & winget download --id $global:SOURCE_Python -d $chemin_dl
 
 	Add-Content $chemin_log 'Telechargement Python OK !'
 	Add-Content $chemin_log '--------------------------'

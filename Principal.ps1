@@ -3,7 +3,12 @@ $global:TYPE_FORENSIC = "Forensic"
 $global:DISTRIB_FORENSIC = "Ubuntu"
 $global:REPERTOIRE_OVA = "VirtualBoxForensic"
 $global:NOM_BASE_VM = "Forensic"
-$global:VIRTUALBOX = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
+$global:VIRTUALBOXMANAGE = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
+$global:VIRTUALBOX = "C:\Program Files\Oracle\VirtualBox\VirtualBox.exe"
+$global:PACKER_UBUNTU = "ubuntu.json.pkr.hcl"
+$global:PACKER_VARIABLE = "variables.pkrvars.hcl"
+$global:PACKER_LINUX = "autoinstall.yaml"
+$global:PACKER_PROVISIONER = "forensic.sh"
 
 ########################################################
 ##### Recuperation du nom de l'hote et de la date ######
@@ -27,7 +32,7 @@ Class CInstallation{
     [string]$chemin_script           #chemin de l'execution pour les scripts Linux Forensic
     [string]$chemin_script_forensic  #chemin complet vers le script forensic 
     [string]$chemin_script_preseed   #chemin complet vers le fichier preseed
-    [string]$chemin_script_ubuntu    #chemin complet vers le fichier json pour packer ubuntu
+    [string]$chemin_script_ubuntu    #chemin complet vers le fichier HCL pour packer ubuntu
     [string]$chemin_script_variables #chemin complet vers le fichier de variables pour packer
     [string]$ipaddress               #adresse IP de l'hote du script
 
@@ -106,8 +111,8 @@ Class CInstallation{
         $this.chemin_script = $chemin_base + "script\"
         $this.chemin_script_forensic = $this.chemin_script + "forensic.sh"
         $this.chemin_script_preseed = $this.chemin_script + "preseed.cfg"
-        $this.chemin_script_ubuntu = $this.chemin_script + "ubuntu.json"
-        $this.chemin_script_variables = $this.chemin_script + "variables.json"
+        $this.chemin_script_ubuntu = $this.chemin_script + $global:PACKER_UBUNTU
+        $this.chemin_script_variables = $this.chemin_script + $global:PACKER_VARIABLE
 	}
 
     #Creation des variables de chemin pour la VM
@@ -195,7 +200,7 @@ function CheckArboScriptsOnline([string]$chemin_script,[string]$chemin_log){
 
     #Configuration des fichiers a verifier
     $fichiers_linux = New-Object System.Collections.ArrayList
-    $fichiers_linux.AddRange(("forensic.sh","preseed.cfg","ubuntu.json","variables.json"))
+    $fichiers_linux.AddRange(($global:PACKER_PROVISIONER,$global:PACKER_LINUX,$global:PACKER_UBUNTU,$global:PACKER_VARIABLE))
 
     foreach ($fichier in $fichiers_linux){
         $chemin = $chemin_script + $fichier
@@ -252,9 +257,9 @@ function CheckArboArchivesOffline([string]$chemin_base,[string]$chemin_log){
 ################################################
 ##### Fonction de creation de la VM Linux ######
 ################################################
-function LinuxCreation($installation){
+function PackerRecuperation($installation){
     #Recuperation ET DECOMPRESSION de Packer
-    $packer_source = "https://developer.hashicorp.com/packer/downloads"
+    $packer_source = "https://developer.hashicorp.com/packer/install"
     $ProgressPreference = 'SilentlyContinue'
     Write-Host "Telechargement et decompression Packer (environ 70Mo)" -ForegroundColor DarkBlue -BackgroundColor White
     $packer = $(@(Invoke-WebRequest -Uri $packer_source -UseBasicParsing).links.href) -match "windows" -match "64"
@@ -264,54 +269,64 @@ function LinuxCreation($installation){
     Invoke-WebRequest -Uri $packer_dl -UseBasicParsing -OutFile $packer_sauvegarde
     Expand-Archive -Force -DestinationPath $installation.chemin_script $packer_sauvegarde
 
-    Remove-Item -Force $packer_sauvegarde
+    Remove-Item -Force $packer_sauvegarde	
+}
 
+function UbuntuRecuperation($installation){
     #Recuperation de Ubuntu
-    $ubuntu_source = "http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/"
+    $ubuntu_source = "https://releases.ubuntu.com/22.04.4/ubuntu-22.04.4-live-server-amd64.iso"
     $ProgressPreference = 'SilentlyContinue'
-    Write-Host "Telechargement Ubuntu Mini Iso (environ 80Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $ubuntu = $(@(Invoke-Webrequest -Uri $ubuntu_source -UseBasicParsing).links.href) -match 'iso$'
-    $ubuntu_dl = $ubuntu_source + $ubuntu[0]
-    $ubuntu_version = $ubuntu[0]
+    Write-Host "Telechargement Ubuntu Live Server 22.04.4 (environ 2.1Go)" -ForegroundColor DarkBlue -BackgroundColor White
+    $ubuntu_version = $ubuntu_source.split("/")[-1]
     $ubuntu_sauvegarde = $installation.chemin_script + $ubuntu_version
-    Invoke-WebRequest -Uri $ubuntu_dl -UseBasicParsing -OutFile $ubuntu_sauvegarde
+    Invoke-WebRequest -Uri $ubuntu_source -UseBasicParsing -OutFile $ubuntu_sauvegarde	
+}
 
-    #Configuration du fichier variables.json pour l'export et la conservation de la VM
+function LinuxParametrage($installation)
+{
+    #Configuration du fichier $global:PACKER_VARIABLE pour l'export et la conservation de la VM
     #Exportation
     if($installation.export){
         (Get-Content -Path $installation.chemin_script_variables) |
-        ForEach-Object {$_ -Replace 'skip_export": "true', 'skip_export": "false'} |
+        ForEach-Object {$_ -Replace 'skip_export = "true"', 'skip_export = "false"'} |
             Set-Content -Path $installation.chemin_script_variables
     }
     #Sans Exportation
     if(-not ($installation.export)){
         (Get-Content -Path $installation.chemin_script_variables) |
-        ForEach-Object {$_ -Replace 'skip_export": "false', 'skip_export": "true'} |
+        ForEach-Object {$_ -Replace 'skip_export = "false"', 'skip_export = "true"'} |
             Set-Content -Path $installation.chemin_script_variables
     }
 
     #Machine virtuelle a ne pas conserver
     if($installation.nettoyage){
         (Get-Content -Path $installation.chemin_script_variables) |
-        ForEach-Object {$_ -Replace 'keep_registered": "true', 'keep_registered": "false'} |
+        ForEach-Object {$_ -Replace 'keep_registered = "true"', 'keep_registered = "false"'} |
             Set-Content -Path $installation.chemin_script_variables
     }
     #Machine virtuelle a conserver
     if(-not ($installation.nettoyage)){
         (Get-Content -Path $installation.chemin_script_variables) |
-        ForEach-Object {$_ -Replace 'keep_registered": "false', 'keep_registered": "true'} |
+        ForEach-Object {$_ -Replace 'keep_registered = "false"', 'keep_registered = "true"'} |
             Set-Content -Path $installation.chemin_script_variables
     }
 
     #Nommage de la machine virtuelle
-    $regex = '"name": "' + $global:NOM_BASE_VM +'_\d\d\d\d-\d\d-\d\d"'
-    $remplacement = '"name": "' + $installation.nom_VM + '"'
+    $regex = 'vm_name = "' + $global:NOM_BASE_VM +'_\d\d\d\d-\d\d-\d\d"'
+    $remplacement = 'vm_name = "' + $installation.nom_VM + '"'
     (Get-Content -Path $installation.chemin_script_variables) -replace $regex, $remplacement |Set-Content $installation.chemin_script_variables
 
     #Adresse IP du PC Hote (devenu obligatoire suite a un pb avec VBox 7.0)
-    $regex = '"host_ip": "\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}"'
-    $remplacement = '"host_ip": "' + $installation.ipaddress + '"'
+    $regex = 'host_ip = "\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}"'
+    $remplacement = 'host_ip = "' + $installation.ipaddress + '"'
     (Get-Content -Path $installation.chemin_script_variables) -replace $regex, $remplacement |Set-Content $installation.chemin_script_variables
+
+}
+
+function LinuxCreation($installation){
+    PackerRecuperation($installation)
+    UbuntuRecuperation($installation)
+    LinuxParametrage($installation)
 
     #Lancement de la creation de la machine via Packer
     $log = "Creation Linux"
@@ -320,9 +335,19 @@ function LinuxCreation($installation){
     Add-Content $installation.chemin_log '*************************'
     write-host "Creation Linux"  -ForegroundColor DarkBlue -BackgroundColor White
 
+    #Démarrage de VirtualBox afin d'éviter les freeze Packer
+#    & $global:VIRTUALBOX
+	
+	#Mise en place des éléments de Packer
     $chemin_origine = Get-Location
     Set-Location -Path $installation.chemin_script
     $packer = $installation.chemin_script + "packer.exe"
+
+    $arguments = "plugins install github.com/hashicorp/virtualbox"
+    Start-Process -NoNewWindow -Wait -FilePath $packer -ArgumentList $arguments
+#    $arguments = "plugins install github.com/hashicorp/vmware"
+#    Start-Process -NoNewWindow -Wait -FilePath $packer -ArgumentList $arguments
+
     $arguments = " build -on-error=ask -var-file=" + $installation.chemin_script_variables + " " +$installation.chemin_script_ubuntu
     Start-Process -NoNewWindow -Wait -FilePath $packer -ArgumentList $arguments
 
@@ -351,7 +376,7 @@ function LinuxOvaImport($chemin_base,$chemin_forensic,$chemin_log){
     $ova = Get-ChildItem -Recurse -Path $chemin_base -Include *.ova
     $ova_path = '"' + $ova[0].FullName + '"'
     $parameter = "import " + $ova_path
-    Start-Process -NoNewWindow -Wait -FilePath $global:VIRTUALBOX -ArgumentList $parameter
+    Start-Process -NoNewWindow -Wait -FilePath $global:VIRTUALBOXMANAGE -ArgumentList $parameter
 
     $log = "Linux importe"
     Add-Content $installation.chemin_log '*************************'
@@ -369,7 +394,7 @@ function LinuxOvaImport($chemin_base,$chemin_forensic,$chemin_log){
 ###############################################################
 function LinuxPartage([string]$chemin_forensic){
     #Recuperation de l'ID de la VM Forensic
-    start-Process -NoNewWindow -Wait -FilePath $global:VIRTUALBOX -ArgumentList "list vms" -RedirectStandardOutput "vmlistSource.txt"
+    start-Process -NoNewWindow -Wait -FilePath $global:VIRTUALBOXMANAGE -ArgumentList "list vms" -RedirectStandardOutput "vmlistSource.txt"
 
     #Creation de l'expression reguliere
     $regex = '"'+$global:NOM_BASE_VM +'_\d\d\d\d-\d\d-\d\d"'
@@ -415,7 +440,7 @@ function LinuxPartage([string]$chemin_forensic){
             #Mise en place du partage
             $Name = "Forensic"
             $parameter = "sharedfolder add " + $vm_id + " --name " + $Name + " --hostpath " + $chemin_forensic + " --automount"
-            Start-Process -NoNewWindow -Wait -FilePath $global:VIRTUALBOX -ArgumentList $parameter
+            Start-Process -NoNewWindow -Wait -FilePath $global:VIRTUALBOXMANAGE -ArgumentList $parameter
         }
     }
 
@@ -490,13 +515,20 @@ function Nettoyage($installation){
     {   
         Write-Host "Suppression de VirtualBox" -foregroundcolor DarkBlue -backgroundcolor White
         Add-Content $installation.chemin_log "Desinstallation de Virtualbox"
-        Uninstall-Package -Name $virtualbox_name.Name
+#        Uninstall-Package -Name $virtualbox_name.Name
+        $arguments = " remove --id Oracle.VirtualBox"
+        Start-Process -Wait winget -ArgumentList $arguments
+        $arguments = " remove --id Microsoft.VCRedist.2015+.x64"
+        Start-Process -Wait winget -ArgumentList $arguments
+        $arguments = " remove --id Microsoft.VCRedist.2015+.x86"
+        Start-Process -Wait winget -ArgumentList $arguments
     }
     #Desinstallation de 7-Zip si 7-zip n'etait pas present sur la machine
     if(-not($installation.zip7)){
         Write-Host "Suppression de 7-zip" -foregroundcolor DarkBlue -backgroundcolor White
         Add-Content $installation.chemin_log "Desinstallation de 7-zip"
-        Uninstall-Package -Name $7zip_name.Name
+        $arguments = " remove --id 7zip.7zip"
+        Start-Process -Wait winget -ArgumentList $arguments
     }
 }
 
@@ -574,15 +606,16 @@ if ($installation.online){
     #Verification
     #------------
     #Verification de l'arborescence
+    Write-Host 'Verification de l arborescence' -ForegroundColor DarkBlue -BackgroundColor White
     CheckArboScriptsOnline $installation.chemin_script $installation.chemin_log
 
     #Mise en place des elements Windows
     #----------------------------------
     #Creation des dossiers Windows et configuration des droits
+    Write-Host "Creation de l'exclusion "$installation.chemin_forensic_extract" dans DEFENDER" -foregroundcolor DarkBlue -backgroundcolor White
     WindowsConfiguration $installation.chemin_forensic_dumps $installation.chemin_log
     WindowsConfiguration $installation.chemin_forensic_extract $installation.chemin_log
     WindowsConfiguration $installation.chemin_forensic_tools $installation.chemin_log
-    Write-Host "Creation de l'exclusion "$installation.chemin_forensic_extract" dans DEFENDER" -foregroundcolor DarkBlue -backgroundcolor White
     Add-MpPreference -ExclusionPath $installation.chemin_forensic_extract
     DirectoryRights $installation.chemin_forensic_extract $installation.chemin_log
 
@@ -592,6 +625,8 @@ if ($installation.online){
     #Logiciels a installer
     try{
         Get-ChildItem ".\script\Install" -ErrorAction stop -Filter *.ps1 | Foreach-Object{
+			Unblock-File -Path $installation.chemin_logiciels
+            Write-Host $_.FullName -ForegroundColor White -BackgroundColor Green
 	        & $_.FullName download $installation.chemin_logiciels $installation.chemin_log
         }
     }
@@ -602,9 +637,11 @@ if ($installation.online){
 	    Add-Content $installation.chemin_log '--------------------------'
     }
 
+
     #Logiciels stand-alone
     try{
         Get-ChildItem ".\script\NoInstall" -ErrorAction stop -Filter *.ps1 | Foreach-Object{
+            Write-Host $_.FullName -ForegroundColor White -BackgroundColor Green
 	        & $_.FullName download $installation.chemin_forensic_tools $installation.chemin_log
         }
     }
@@ -642,17 +679,26 @@ if ($installation.online){
         }
         #Installation de Virtualbox s'il n'est pas installe
         if(-not($installation.virtualbox)){
+            Get-ChildItem ".\script\Install" -ErrorAction stop -Filter Microsoft.VCRedist-x64.ps1 | Foreach-Object{
+	            & $_.FullName install $installation.chemin_logiciels $installation.chemin_log
+            }
+            Get-ChildItem ".\script\Install" -ErrorAction stop -Filter Microsoft.VCRedist-x86.ps1 | Foreach-Object{
+	            & $_.FullName install $installation.chemin_logiciels $installation.chemin_log
+            }
             Get-ChildItem ".\script\Install" -ErrorAction stop -Filter VirtualBox*.ps1 | Foreach-Object{
 	            & $_.FullName install $installation.chemin_logiciels $installation.chemin_log
             }
         }
     }
 
+Write-Host 'DEMARRAGE DE LA PARTIE VM VirtualBox' -ForegroundColor White -BackgroundColor Green
+
     #Mise en place des elements Linux
     #--------------------------------
     #Creation de la machine Linux
     if(Get-WmiObject -Class Win32_Product |where name -match "VirtualBox"){
         LinuxCreation($installation)
+        Write-Host "VIRTUALBOX EST INSTALLE !!" -ForegroundColor White -BackgroundColor Green
     }
     else{
         Write-Host "VIRTUALBOX N'EST PAS INSTALLE !!" -ForegroundColor White -BackgroundColor Red

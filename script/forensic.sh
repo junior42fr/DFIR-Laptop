@@ -16,7 +16,7 @@ packages_depot=(
  "libpython2-dev"
 )
 
-CAST="https://github.com/ekristen/cast/releases/download/v0.14.0/cast_v0.14.0_linux_amd64.deb"
+CAST="https://github.com/ekristen/cast/releases/download/v0.14.24/cast-v0.14.24-linux-amd64.deb"
 
 CAPA="https://github.com/mandiant/capa/releases/download/v4.0.1/capa-v4.0.1-linux.zip"
 DUMPZILLA="http://www.dumpzilla.org/dumpzilla.py"
@@ -29,22 +29,21 @@ VOLATILITY3="https://github.com/volatilityfoundation/volatility3.git"
 VOLATILITY3_SYMBOL="https://github.com/JPCERTCC/Windows-Symbol-Tables.git"
 ZIRCOLITE="https://github.com/wagga40/Zircolite"
 ZIRCOLITE_DOC="https://github.com/wagga40/Zircolite/raw/master/docs/Zircolite_manual.pdf"
-ZUI="https://github.com/brimdata/zui/releases/download/v1.0.0/zui_1.0.0_amd64.deb"
+ZUI="https://github.com/brimdata/zui/releases/download/v1.6.0/zui_1.6.0_amd64.deb"
 
 Etape10_disableautomaticupdate(){
 	echo "---------------------------------------------------------------------"
 	echo "DESACTIVATION de la MISE A JOUR AUTOMATIQUE"
 	echo "---------------------------------------------------------------------"
-
-	sudo sed -i 's/1/0/g' /etc/apt/apt.conf.d/20auto-upgrades
+    sudo sed -i 's/1/0/g' /etc/apt/apt.conf.d/20auto-upgrades
 }
 
 Etape20_upgrade() {
 	echo "---------------------------------------------------------------------"
 	echo "Début de la MISE A JOUR"
 	echo "---------------------------------------------------------------------"
-
-	sudo add-apt-repository -y ppa:gift/stable
+    sudo add-apt-repository -y ppa:gift/stable
+	
 	sudo apt update
 	sudo apt-get -f install
 	
@@ -56,12 +55,13 @@ Etape30_install_cast(){
 	echo "Installation de CAST"
 	echo "---------------------------------------------------------------------"
 
-	sudo wget $CAST
+	sudo wget $CAST --quiet
 	CAST_file=$(echo $CAST | rev |cut -d'/' -f1 | rev)
+    echo $CAST_file " téléchargé"
 	sudo dpkg -i $CAST_file
 	sudo rm -f $CAST_file
 
-	echo "CAST INSTALLE"
+    echo $CAST_file " installé"
 }
 
 Etape31_install_sift(){
@@ -71,7 +71,7 @@ Etape31_install_sift(){
 
 	sudo cast install teamdfir/sift-saltstack
 
-	echo "SIFT INSTALLEE"
+	echo "SIFT installée"
 }
 
 Etape32_install_remnux(){
@@ -81,7 +81,7 @@ Etape32_install_remnux(){
 
 	sudo cast install remnux/salt-states
 
-	echo "REMNUX INSTALLEE"
+	echo "REMNUX installée"
 }
 
 Etape40_install_packaged_tools(){
@@ -92,12 +92,12 @@ Etape40_install_packaged_tools(){
 	for package in "${packages_depot[@]}"
 	do
 		echo "---------------------------------------------------------------------"
-		echo "Installation du package $1"
+		echo "Installation du package $package"
 		echo "---------------------------------------------------------------------"		
 		sudo apt install -y $package
 		if [ $? -ne 0 ]; then
 			echo "*********************************************************************"
-			echo "************** IMPOSSIBLE D'INSTALLER LE PACKAGE $1 *****************"
+			echo "************** IMPOSSIBLE D'INSTALLER LE PACKAGE $package ***********"
 			echo "*********************************************************************"
 		fi
 	done
@@ -116,7 +116,7 @@ Etape50_install_unpacked_tools(){
 	#Dumpzilla
 	echo " >>>>>>  Installation de Dumpzilla "
 	cd /TOOLS
-	sudo wget $DUMPZILLA
+	sudo wget $DUMPZILLA --quiet
 	arrDUMP=(${DUMPZILLA//// })
 	sudo chmod +x ${arrDUMP[-1]}
 	echo "DUMPZILLA" | sudo tee -a /TOOLS/README_for_tools.txt
@@ -139,7 +139,7 @@ Etape50_install_unpacked_tools(){
 	sudo git clone $LOKI
 	sudo pip3 install -r ./Loki/requirements.txt
 	cd Loki
-	chmod +x loki.py
+	sudo chmod +x loki.py
 	echo " >>>>>>  Mise en place des signatures pour Loki "
 	sudo git clone $LOKI_SIGNATURE
 	sudo python3 loki-upgrader.py
@@ -152,12 +152,12 @@ Etape50_install_unpacked_tools(){
 	#RegRippy
 	echo " >>>>>>  Installation de RegRippy "
 	cd /TOOLS
-	sudo pip3 install regrippy
+	sudo pip3 install regrippy --quiet
 
 	#SigmaHQ/sigma
 	echo " >>>>>>  Installation de Sigma "
 	cd /TOOLS
-	sudo pip3 install ruamel.yaml
+	sudo pip3 install ruamel.yaml --quiet
 	sudo git clone $SIGMA
 	echo "Sigma" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "-----" | sudo tee -a /TOOLS/README_for_tools.txt
@@ -188,14 +188,14 @@ Etape50_install_unpacked_tools(){
 
 	#Ajout de symboles pour volatility3
 	sudo git clone $VOLATILITY3_SYMBOL
-	sudo mv -R Windows-Symbol-Tables/symbols/windows volatility3/volatility3/symbols
+	sudo mv Windows-Symbol-Tables/symbols/windows volatility3/volatility3/symbols
 	sudo rm -rf Windows-Symbol-Tables
 
 	#Zircolite
 	echo " >>>>>>  Installation de Zircolite "
 	cd /TOOLS
 	sudo /usr/bin/python3 -m pip install --upgrade pip
-	sudo pip3 install tqdm
+	sudo pip3 install tqdm --quiet
 	sudo git clone $ZIRCOLITE
 	sudo pip3 install -r ./Zircolite/requirements.txt
 	echo "Zircolite" | sudo tee -a /TOOLS/README_for_tools.txt
@@ -203,21 +203,21 @@ Etape50_install_unpacked_tools(){
 	echo "A standalone SIGMA-based detection tool for EVTX." | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
 	#Récupération de la documentation Zircolite
-	sudo wget $ZIRCOLITE_DOC
+	sudo wget $ZIRCOLITE_DOC --quiet
 	#Création des règles SIGMA dans le dossier Zircolite
-	sudo ./sigma/tools/sigmac -t sqlite -c ./sigma/tools/config/generic/sysmon.yml -c ./sigma/tools/config/generic/powershell.yml -c ./sigma/tools/config/zircolite.yml -d ./sigma/rules/windows/ --output-fields title,id,description,author,tags,level,falsepositives,filename,status --output-format json -r -o ./Zircolite/rules_sysmon.json --backend-option table=logs
-	sudo ./sigma/tools/sigmac -t sqlite -c ./sigma/tools/config/generic/windows-audit.yml -c ./sigma/tools/config/generic/powershell.yml -c ./sigma/tools/config/zircolite.yml -d ./sigma/rules/windows/ --output-fields title,id,description,author,tags,level,falsepositives,filename,status --output-format json -r -o ./Zircolite/rules_generic.json --backend-option table=logs
+#	sudo ./sigma/tools/sigmac -t sqlite -c ./sigma/tools/config/generic/sysmon.yml -c ./sigma/tools/config/generic/powershell.yml -c ./sigma/tools/config/zircolite.yml -d ./sigma/rules/windows/ --output-fields title,id,description,author,tags,level,falsepositives,filename,status --output-format json -r -o ./Zircolite/rules_sysmon.json --backend-option table=logs
+#	sudo ./sigma/tools/sigmac -t sqlite -c ./sigma/tools/config/generic/windows-audit.yml -c ./sigma/tools/config/generic/powershell.yml -c ./sigma/tools/config/zircolite.yml -d ./sigma/rules/windows/ --output-fields title,id,description,author,tags,level,falsepositives,filename,status --output-format json -r -o ./Zircolite/rules_generic.json --backend-option table=logs
 
 	#Zui
 	echo " >>>>>>  Installation de Zui "
-	sudo wget $ZUI
+	sudo wget $ZUI --quiet
 	ZUI_file=$(echo $ZUI |rev | cut -d'/' -f1 |rev)
 	sudo dpkg -i $ZUI_file
 	sudo rm -f $ZUI_file
 
 	#Docker Splunk
 	echo " >>>>>>  Récupération du docker SPLUNK "
-	sudo docker pull splunk/splunk
+	sudo docker pull splunk/splunk --quiet
 	echo "Docker Splunk" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "-------------" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "The software lets you collect, analyze, and act upon the untapped value of big data that your technology infrastructure, security systems, and business applications generate." | sudo tee -a /TOOLS/README_for_tools.txt
@@ -227,14 +227,22 @@ Etape50_install_unpacked_tools(){
 	
 	#Docker Suricata
 	echo " >>>>>>  Récupération du docker SURICATA "
-	sudo docker pull jasonish/suricata
+	sudo docker pull jasonish/suricata --quiet
 	echo "Docker Suricata" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "---------------" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "Suricata is a high performance, open source network analysis and threat detection software used by most private and public organizations, and embedded by major vendors to protect their assets." | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "LIVE : docker run --rm -it --net=host --cap-add=net_admin --cap-add=net_raw --cap-add=sys_nice -v $(pwd)/logs:/var/log/suricata jasonish/suricata:latest -i <interface>"  | sudo tee -a /TOOLS/README_for_tools.txt
-	echo ""  | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
 
+    #Docker Zircolite
+	echo " >>>>>>  Récupération du docker ZIRCOLITE "
+    sudo docker pull wagga40/zircolite --quiet
+    echo "Docker Zircolite" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "----------------" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "Use in case of Azeroth" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo 'docker run --rm --tty -v EVTX_DIR:/case/input:ro -v OUTPUT_DIR:/case/output wagga40/zircolite --ruleset rules/rules_windows_generic_full.json --evtx /case/input -o /case/output/OUTPUT_FILE.json")' | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
+	
 	echo "---------------------------------------------------------------------"
 	echo "OUTILS INDEPENDANTS INSTALLES"
 	echo "---------------------------------------------------------------------"
@@ -249,7 +257,7 @@ Etape60_install_guest_additions(){
 	sudo mkdir -p /media/cdrom
 
 	echo "Montage du fichier VBoxGuestAdditions.iso"
-	sudo mount -t auto /home/analyste/VBoxGuestAdditions.iso /media/cdrom
+	sudo mount -t auto /home/$USER/VBoxGuestAdditions.iso /media/cdrom
 
 	echo "Copie de VBoxLinuxAdditions.run	dans /tmp"
 	sudo cp /media/cdrom/VBoxLinuxAdditions.run	/tmp/VBoxLinuxAdditions.run
@@ -268,11 +276,12 @@ Etape60_install_guest_additions(){
 	sudo adduser $USER vboxsf
 }
 
+sleep 40 
 Etape10_disableautomaticupdate
 Etape20_upgrade
 Etape30_install_cast
 Etape31_install_sift
-Etape32_install_remnux
+###Etape32_install_remnux
 Etape40_install_packaged_tools
 Etape50_install_unpacked_tools
 Etape60_install_guest_additions

@@ -1,0 +1,104 @@
+#cloud-config
+chpasswd:
+  list:
+    - installer:$6$gnqbMUzHhQzpDEw.$.cCNVVDsDfj5Feebh.5O4VbOmib7tyjmeI2ZsFP7VK2kWwgJFbfjvXo3chpeAqCgXWVIW9oNQ/Ag85PR0IsKD/
+autoinstall:
+  apt:
+    disable_components: []
+    fallback: abort
+    geoip: false
+    mirror-selection:
+      primary:
+      - country-mirror
+      - arches: &id001
+        - amd64
+        - i386
+        uri: http://archive.ubuntu.com/ubuntu/
+      - arches: &id002
+        - s390x
+        - arm64
+        - armhf
+        - powerpc
+        - ppc64el
+        - riscv64
+        uri: http://ports.ubuntu.com/ubuntu-ports
+    preserve_sources_list: false
+    security:
+    - arches: *id001
+      uri: http://security.ubuntu.com/ubuntu/
+    - arches: *id002
+      uri: http://ports.ubuntu.com/ubuntu-ports
+  codecs:
+    install: false
+  drivers:
+    install: false
+  early-commands:
+    - systemctl stop ssh
+    - sed -i "s/#Cache=.*/Cache=yes/g" /etc/systemd/resolved.conf
+    - sed -i "s/#DNS=.*/DNS=4.2.2.1 4.2.2.2 208.67.220.220/g" /etc/systemd/resolved.conf
+    - sed -i "s/#FallbackDNS=.*/FallbackDNS=4.2.2.1 4.2.2.2 208.67.220.220/g" /etc/systemd/resolved.conf
+    - systemctl restart systemd-resolved
+  final_message: "System installation complete."
+  identity:
+    hostname: forensicator
+    realname: analyste
+    password: $6$ChhBbeuphbv7lRJ5$1KfPSfTHBzU93MyDnBOwSAQvXsAyFVJa1/KaQUca72G865YN1yTsaNgIjqv4PlqvO3tiyBCEF8u/Ge6bqBc.B.
+    username: analyste
+  kernel:
+    package: linux-generic
+  keyboard:
+    layout: fr
+    toggle: null
+    variant: ''
+  late-commands:
+    - curtin in-target --target=/target -- apt install ubuntu-desktop-minimal -y
+    - curtin in-target --target=/target -- logger "finished late-commands"
+  locale: fr_FR.UTF-8
+  network:
+    ethernets:
+      enp0s3:
+        dhcp4: true
+    version: 2
+  oem:
+    install: auto
+  output:
+    init: "> /var/log/cloud-init.log"
+    config: [ ">> /tmp/foo.out", "> /var/log/cloud-config.log" ]
+    final:
+      output: "| tee /tmp/final.stdout | tee /var/log/cloud-final.log"
+      error: "&1"
+  packages:
+    - ca-certificates
+    - uuid
+    - software-properties-common
+    - gcc
+    - make
+    - perl
+    - python3
+    - python3-pip
+    - curl
+    - wget
+    - git
+  source:
+    id: ubuntu-server
+    search_drivers: false
+  ssh:
+    allow-pw: true
+    authorized-keys: []
+    install-server: true
+  storage:
+    layout:
+      name: lvm
+  updates: security
+  user-data:
+    disable_root: true
+    package_update: true
+    package_upgrade: false
+    write_files:
+      - path: /etc/sudoers.d/analyste
+        owner: 'root:root'
+        permissions: '0644'
+        defer: true
+        content:
+          analyste ALL=(ALL) NOPASSWD:ALL
+  version: 1

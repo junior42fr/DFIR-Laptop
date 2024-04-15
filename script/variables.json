@@ -1,9 +1,0 @@
-{
-  "skip_export": "false",
-  "keep_registered": "false",
-  "output_directory": "VirtualBoxForensic",
-  "name": "Forensic_2023-05-09",
-  "host_ip": "172.23.138.11",
-  "cpus": "2",
-  "disk_size": "80000"
-}

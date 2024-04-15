@@ -1,19 +1,17 @@
-$global:SOURCE_Putty = "https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html"
+$global:SOURCE_Putty = "PuTTY.PuTTY"
 
 function Putty-Downloader([string]$chemin_dl,[string]$chemin_log){
-    $ProgressPreference = 'SilentlyContinue'
-	Add-Content $chemin_log 'Telechargement Putty'
-    Write-Host "Telechargement Putty (environ 4Mo)" -ForegroundColor DarkBlue -BackgroundColor White
-    $putty = $(@(Invoke-WebRequest -Uri $global:SOURCE_Putty -UseBasicParsing).links.href) -match 'msi$' -match "64bit"
-    $putty_dl = $putty[0]
-    $putty_version = $putty_dl.split("/")[-1]
-	$version = 'Version :'+$putty_version
-	Add-Content $chemin_log $version	
-    $putty_sauvegarde = $chemin_dl + $putty_version
-	
+	#Récupération de la version et inscription dans le fichier de log
+	$putty=winget show --id $global:SOURCE_Putty
+	foreach ($version in $putty){
+        if ($version -like "Version*"){
+            Add-Content $chemin_log $version
+		}
+	}
+
 	#Telechargement de Putty
-    Invoke-WebRequest -Uri $putty_dl -UseBasicParsing -OutFile $putty_sauvegarde
-	
+    & winget download --id $global:SOURCE_Putty -d $chemin_dl
+
 	Add-Content $chemin_log 'Telechargement Putty OK !'
 	Add-Content $chemin_log '-------------------------'	
 }

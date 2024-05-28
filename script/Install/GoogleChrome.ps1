@@ -17,12 +17,12 @@ function Chrome-Downloader([string]$chemin_dl,[string]$chemin_log){
 }
 
 function Chrome-Installer([string]$chemin_dl,[string]$chemin_log){
-    $logiciel = Get-ChildItem -Recurse -Path $chemin_dl -Include *chrome*.exe | select FullName
+    $logiciel = Get-ChildItem -Recurse -Path $chemin_dl -Include *chrome*.msi | select FullName
     if($logiciel.FullName){
         Write-Host "Installation de " $logiciel.FullName -ForegroundColor DarkBlue -BackgroundColor White
         Add-Content $chemin_log "Installation de Google Chrome effectuee"
-        $arguments = '--do-not-launch-chrome'
-        Start-Process -Wait $logiciel.FullName -ArgumentList $arguments
+        $arguments = '/I "'+ $logiciel.FullName +'" /quiet /norestart'
+		Start-Process -Wait msiexec.exe -ArgumentList $arguments
     }
     else{
 		Write-Host "Aucun logiciel Google Chrome a installer" -BackgroundColor White -ForegroundColor Red

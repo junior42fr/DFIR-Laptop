@@ -14,6 +14,7 @@ packages_depot=(
  "python2"
  "python2.7-dev"
  "libpython2-dev"
+ "clamav-daemon"
 )
 
 CAST="https://github.com/ekristen/cast/releases/download/v0.14.24/cast-v0.14.24-linux-amd64.deb"
@@ -36,6 +37,14 @@ Etape10_disableautomaticupdate(){
 	echo "DESACTIVATION de la MISE A JOUR AUTOMATIQUE"
 	echo "---------------------------------------------------------------------"
     sudo sed -i 's/1/0/g' /etc/apt/apt.conf.d/20auto-upgrades
+}
+
+Etape11_resizedisk(){
+	echo "---------------------------------------------------------------------"
+	echo "MODIFICATION de la PARTITION"
+	echo "---------------------------------------------------------------------"
+    sudo lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
+	sudo resize2fs /dev/ubuntu-vg/ubuntu-lv
 }
 
 Etape20_upgrade() {
@@ -278,6 +287,7 @@ Etape60_install_guest_additions(){
 
 sleep 40 
 Etape10_disableautomaticupdate
+Etape11_resizedisk
 Etape20_upgrade
 Etape30_install_cast
 Etape31_install_sift

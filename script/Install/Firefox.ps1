@@ -23,12 +23,12 @@ function Firefox-Downloader([string]$chemin_dl,[string]$chemin_log){
 #Parametre 1 : chemin de telechargement
 #Parametre 2 : chemin du fichier de log
 function Firefox-Installer([string]$chemin_dl,[string]$chemin_log){
-	$logiciel = Get-ChildItem -Recurse -Path $chemin_dl -Include *Firefox*.msi | select FullName
+	$logiciel = Get-ChildItem -Recurse -Path $chemin_dl -Include *Firefox*.exe | select FullName
 	if($logiciel.FullName){
         Write-Host "Installation de " $logiciel.FullName -ForegroundColor DarkBlue -BackgroundColor White
         Add-Content $chemin_log "Installation de Firefox effectuee"
-        $arguments = '/I "'+ $logiciel.FullName +'" /quiet /norestart'
-        Start-Process -Wait msiexec.exe -ArgumentList $arguments
+		$arguments = ' /S /PreventRebootRequired=true'
+		Start-Process -Wait $logiciel.FullName -ArgumentList $arguments
 	}
 	else{
 		Write-Host "Aucun logiciel Firefox a installer" -BackgroundColor White -ForegroundColor Red

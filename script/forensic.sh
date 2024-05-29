@@ -25,7 +25,9 @@ FENRIR="https://github.com/Neo23x0/Fenrir"
 FLOSS="https://github.com/fireeye/flare-floss/releases/download/v1.7.0/floss-v1.7.0-linux.zip"
 LOKI="https://github.com/Neo23x0/Loki"
 LOKI_SIGNATURE="https://github.com/Neo23x0/signature-base"
+OLETOOLS="oletools"
 SIGMA="https://github.com/SigmaHQ/sigma"
+VIPERMONKEY="https://github.com/decalage2/ViperMonkey"
 VOLATILITY3="https://github.com/volatilityfoundation/volatility3.git"
 VOLATILITY3_SYMBOL="https://github.com/JPCERTCC/Windows-Symbol-Tables.git"
 ZIRCOLITE="https://github.com/wagga40/Zircolite"
@@ -158,6 +160,15 @@ Etape50_install_unpacked_tools(){
 	echo "Simple IOC and Incident Response Scanner" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
 
+	#Oletools
+	echo " >>>>>>  Oletools "
+	sudo pip3 install $OLETOOLS
+	echo "Oletools" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "--------" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "Python tools to analyze MS OLE2 files (Structured Storage, Compound File Binary Format) and MS Office documents, for malware analysis, forensics and debugging. " | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
+
+
 	#RegRippy
 	echo " >>>>>>  Installation de RegRippy "
 	cd /TOOLS
@@ -171,6 +182,15 @@ Etape50_install_unpacked_tools(){
 	echo "Sigma" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "-----" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "Generic Signature Format for SIEM Systems " | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
+
+	#Récupération Github ViperMonkey
+	echo " >>>>>>  Installation de ViperMonkey "
+	cd /TOOLS
+	sudo git clone $VIPERMONKEY
+	echo "ViperMonkey" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "-----------" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "A VBA parser and emulation engine to analyze malicious macros. " | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
 
 	#Volatility2
@@ -241,6 +261,14 @@ Etape50_install_unpacked_tools(){
 	echo "---------------" | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "Suricata is a high performance, open source network analysis and threat detection software used by most private and public organizations, and embedded by major vendors to protect their assets." | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "LIVE : docker run --rm -it --net=host --cap-add=net_admin --cap-add=net_raw --cap-add=sys_nice -v $(pwd)/logs:/var/log/suricata jasonish/suricata:latest -i <interface>"  | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
+
+    #Docker ViperMonkey
+	echo " >>>>>>  Récupération du docker VIPERMONKEY "
+	sudo docker pull haroldogen/vipermonkey --quiet
+	echo "Docker ViperMonkey" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "------------------" | sudo tee -a /TOOLS/README_for_tools.txt
+	echo "A VBA parser and emulation engine to analyze malicious macros." | sudo tee -a /TOOLS/README_for_tools.txt
 	echo "" | sudo tee -a /TOOLS/README_for_tools.txt
 
     #Docker Zircolite
